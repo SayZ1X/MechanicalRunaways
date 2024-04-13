@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
@@ -21,10 +21,10 @@ public:
 
 	void MoveUp(float Value);
 	void MoveRight(float Value);
-	void checkJump();
 
 	bool bCanJump;
 
+	UFUNCTION(BlueprintCallable) bool checkJump();
 	UFUNCTION(BlueprintImplementableEvent) void Jump();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* Mesh;

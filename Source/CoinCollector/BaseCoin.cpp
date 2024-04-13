@@ -1,4 +1,4 @@
-#include "BaseCoin.h"
+﻿#include "BaseCoin.h"
 #include "BasePlayer.h"
 
 // ABaseCoin

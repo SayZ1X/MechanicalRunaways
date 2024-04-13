@@ -1,4 +1,5 @@
-#include "BasePlayer.h"
+﻿#include "BasePlayer.h"
+#include "DrawDebugHelpers.h"
 
 // ABasePlayer
 //------------------------------------------------------------------------------------------------------------
@@ -44,9 +45,18 @@ void ABasePlayer::MoveRight(float Value)
 	Mesh->AddForce(ForceToAdd);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::checkJump()
+bool ABasePlayer::checkJump()
 {
-	FVector DownVector = GetActorUpVector() * -300;
+	FVector start_loc = GetActorLocation();
+	FVector world_up = FVector(0, 0, 1);  // Вектор вертикальной  относительно мира, а не персонажа
+	FVector end_loc = start_loc + world_up * -51.0f;
+
+	// Дебаг для отрисовки луча
+	//DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, true, 0.1f, 0, 1.0f);
+
+	FHitResult hit_result;
+
+	return GetWorld()->LineTraceSingleByChannel(hit_result, start_loc, end_loc, ECC_PhysicsBody);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABasePlayer::BeginPlay()
