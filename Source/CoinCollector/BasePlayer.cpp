@@ -20,7 +20,7 @@ ABasePlayer::ABasePlayer()
 	Movement_Force = 100000.0f;
 	Jump_Impulse = 100000.0f;
 
-	OnActorBeginOverlap.AddDynamic(this, &ABasePlayer::OnOverlap);
+	OnActorBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABasePlayer::SetupPlayerInputComponent(UInputComponent* player_input_component)
@@ -43,6 +43,16 @@ void ABasePlayer::Move_Right(float value)
 	Mesh->AddForce(ForceToAdd);
 }
 //------------------------------------------------------------------------------------------------------------
+void ABasePlayer::Collect_Coin(ABaseCoin* coin)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[%S] >>>>> other_actor name \"%s\""), __FUNCTION__, *coin->GetActorLabel());
+
+	coin->Was_Collected = true;
+	Counter_Collected_Coin++;
+	coin->Play_Custom_Death();
+	Counter_Collected_Coin_Changed.Broadcast(Counter_Collected_Coin);
+}
+//------------------------------------------------------------------------------------------------------------
 bool ABasePlayer::check_Jump()
 {
 	FVector start_loc = GetActorLocation();
@@ -50,7 +60,7 @@ bool ABasePlayer::check_Jump()
 	FVector end_loc = start_loc + world_up * -51.0f;
 
 	// Дебаг для отрисовки луча
-	DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, true, 0.1f, 0, 1.0f);
+	DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, false, 0.1f, 0, 1.0f);
 
 	FHitResult hit_result;
 
@@ -67,10 +77,7 @@ void ABasePlayer::OnOverlap_Implementation(AActor* overlapped_actor, AActor* oth
 	{
 		if (coin)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[%S] >>>>> other_actor name \"%s\""), __FUNCTION__, *other_actor->GetActorLabel());
-			coin->Was_Collected = true;
-			Counter_Collected_Coin++;
-			coin->Play_Custom_Death();
+			Collect_Coin(coin);
 		}
 	}
 }

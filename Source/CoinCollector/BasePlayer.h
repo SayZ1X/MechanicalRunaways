@@ -7,6 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "BasePlayer.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCounter_Collected_Coin_Changed, int, New_Count_Collected_Coin);
+class ABaseCoin;
+
 //------------------------------------------------------------------------------------------------------------
 UCLASS()
 class COINCOLLECTOR_API ABasePlayer : public APawn
@@ -20,14 +23,15 @@ public:
 
 	void Move_Up(float value);
 	void Move_Right(float value);
+	void Collect_Coin(ABaseCoin* coin);
 
 	int Counter_Collected_Coin;
 
+	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* overlapped_actor, AActor* other_actor);
 	UFUNCTION(BlueprintCallable) bool check_Jump();
 	UFUNCTION(BlueprintImplementableEvent) void Jump();
-	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* overlapped_actor, AActor* other_actor);
 
-
+	UPROPERTY(BlueprintAssignable) FCounter_Collected_Coin_Changed Counter_Collected_Coin_Changed;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCameraComponent* Camera;
