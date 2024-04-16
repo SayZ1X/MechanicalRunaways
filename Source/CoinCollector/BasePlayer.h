@@ -16,25 +16,23 @@ class COINCOLLECTOR_API ABasePlayer : public APawn
 public:
 	ABasePlayer();
 
-	virtual void Tick(float DeltaTime);
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
+	virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component);
 
-	void MoveUp(float Value);
-	void MoveRight(float Value);
+	void Move_Up(float value);
+	void Move_Right(float value);
 
-	bool bCanJump;
+	int Counter_Collected_Coin;
 
-	UFUNCTION(BlueprintCallable) bool checkJump();
+	UFUNCTION(BlueprintCallable) bool check_Jump();
 	UFUNCTION(BlueprintImplementableEvent) void Jump();
+	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* overlapped_actor, AActor* other_actor);
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* Mesh;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* SpringArm;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCameraComponent* Camera;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float MovementForce;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float JumpImpulse;
-
-protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Movement_Force;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Jump_Impulse;
 
 };
 //------------------------------------------------------------------------------------------------------------

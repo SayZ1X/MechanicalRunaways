@@ -1,67 +1,77 @@
 ﻿#include "BasePlayer.h"
+#include "BaseCoin.h"
 #include "DrawDebugHelpers.h"
 
 // ABasePlayer
 //------------------------------------------------------------------------------------------------------------
 ABasePlayer::ABasePlayer()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	Counter_Collected_Coin = 0;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
+	Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 
 	RootComponent = Mesh;
-	SpringArm->SetupAttachment(Mesh);
-	Camera->SetupAttachment(SpringArm);
+	Spring_Arm->SetupAttachment(Mesh);
+	Camera->SetupAttachment(Spring_Arm);
 
 	Mesh->SetSimulatePhysics(true);
-	MovementForce = 100000;
-}
-//------------------------------------------------------------------------------------------------------------
-void ABasePlayer::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	Movement_Force = 100000.0f;
+	Jump_Impulse = 100000.0f;
 
+	OnActorBeginOverlap.AddDynamic(this, &ABasePlayer::OnOverlap);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ABasePlayer::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	InputComponent->BindAxis("MoveUp", this, &ABasePlayer::MoveUp);
-	InputComponent->BindAxis("MoveRight", this, &ABasePlayer::MoveRight);
+	Super::SetupPlayerInputComponent(player_input_component);
+	InputComponent->BindAxis("MoveUp", this, &ABasePlayer::Move_Up);
+	InputComponent->BindAxis("MoveRight", this, &ABasePlayer::Move_Right);
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ABasePlayer::Jump);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::MoveUp(float Value)
+void ABasePlayer::Move_Up(float value)
 {
-	FVector ForceToAdd = FVector(1, 0, 0) * MovementForce * Value;
+	FVector ForceToAdd = FVector(1, 0, 0) * Movement_Force * value;
 	Mesh->AddForce(ForceToAdd);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::MoveRight(float Value)
+void ABasePlayer::Move_Right(float value)
 {
-	FVector ForceToAdd = FVector(0, 1, 0) * MovementForce * Value;
+	FVector ForceToAdd = FVector(0, 1, 0) * Movement_Force * value;
 	Mesh->AddForce(ForceToAdd);
 }
 //------------------------------------------------------------------------------------------------------------
-bool ABasePlayer::checkJump()
+bool ABasePlayer::check_Jump()
 {
 	FVector start_loc = GetActorLocation();
 	FVector world_up = FVector(0, 0, 1);  // Вектор вертикальной  относительно мира, а не персонажа
 	FVector end_loc = start_loc + world_up * -51.0f;
 
 	// Дебаг для отрисовки луча
-	//DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, true, 0.1f, 0, 1.0f);
+	DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, true, 0.1f, 0, 1.0f);
 
 	FHitResult hit_result;
 
 	return GetWorld()->LineTraceSingleByChannel(hit_result, start_loc, end_loc, ECC_PhysicsBody);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::BeginPlay()
+void ABasePlayer::OnOverlap_Implementation(AActor* overlapped_actor, AActor* other_actor)
 {
-	Super::BeginPlay();
+	if (other_actor != Cast<ABaseCoin>(other_actor) )
+		return;
 
+	ABaseCoin* coin = Cast<ABaseCoin>(other_actor);
+	if (!coin->Was_Collected)
+	{
+		if (coin)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[%S] >>>>> other_actor name \"%s\""), __FUNCTION__, *other_actor->GetActorLabel());
+			coin->Was_Collected = true;
+			Counter_Collected_Coin++;
+			coin->Play_Custom_Death();
+		}
+	}
 }
 //------------------------------------------------------------------------------------------------------------

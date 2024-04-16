@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Sound/SoundBase.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
@@ -14,21 +15,21 @@ class COINCOLLECTOR_API ABaseCoin : public AActor
 public:
 	ABaseCoin();
 
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float delta_time);
 
-	UFUNCTION(BlueprintCallable) void PlayCustomDeath();
-	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	bool Was_Collected;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USceneComponent* Root;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* CoinMesh;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float RotationRate;
+	UFUNCTION(BlueprintCallable) void Play_Custom_Death();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coin_Setting") USceneComponent* Root;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coin_Setting") UStaticMeshComponent* Coin_Mesh;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Coin_Setting") USoundBase* Coin_Sound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coin_Setting") float Rotation_Rate;
 
 protected:
-	virtual void BeginPlay() override;
+	void Death_Timer_Complete();
 
-	void DeathTimerComplete();
-
-	FTimerHandle DeathTimerHandle;
+	FTimerHandle Death_Timer_Handle;
 
 };
 //------------------------------------------------------------------------------------------------------------
