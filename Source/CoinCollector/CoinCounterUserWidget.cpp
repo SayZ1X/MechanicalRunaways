@@ -1,5 +1,7 @@
 ﻿#include "CoinCounterUserWidget.h"
 #include "BasePlayer.h"
+#include "BaseCoin.h"
+#include "Kismet/GameplayStatics.h"
 
 // UCoinCounterUserWidget
 //------------------------------------------------------------------------------------------------------------
@@ -7,12 +9,15 @@ void UCoinCounterUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ElapsedTime = 0.0f;
-	UpdateInterval = 1.0f;
+   ElapsedTime = 0.0f;  // Устанавливаем базовое значение таймера
+   UpdateInterval = 1.0f;  // Устанавливаем интервал обновления таймера
+
+   Get_All_Coin(All_Coins_Count);  // Устанавливаем значение количества всех монет на уровне
+   Collected_Coin_Changed(0);  // Вызываем обновление текста в виджете с базовым значением собраных монет
 
 	ABasePlayer* own_player = Cast<ABasePlayer>(GetOwningPlayerPawn() );
 	if (own_player)
-		own_player->Counter_Collected_Coin_Changed.AddDynamic(this, &ThisClass::Collected_Coin_Changed);  // Св-язываем делегат нашего персонажа с функцией для обновления UI текста
+		own_player->Counter_Collected_Coin_Changed.AddDynamic(this, &ThisClass::Collected_Coin_Changed);  // Связываем делегат нашего персонажа с функцией для обновления UI текста
 }
 //------------------------------------------------------------------------------------------------------------
 void UCoinCounterUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -40,9 +45,18 @@ void UCoinCounterUserWidget::NativeTick(const FGeometry& MyGeometry, float InDel
    }
 }
 //------------------------------------------------------------------------------------------------------------
+void UCoinCounterUserWidget::Get_All_Coin(int &all_coin_counter)
+{  // Функция для установки значения количества всех монеток на уровне
+   TArray<AActor*> CoinActors;
+   UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCoin::StaticClass(), CoinActors);
+   all_coin_counter = CoinActors.Num();
+   CoinActors.Empty();
+}
+//------------------------------------------------------------------------------------------------------------
 void UCoinCounterUserWidget::Collected_Coin_Changed(const int new_count_collected_coin)
 {
 	check(Collected_Coin_Text_Block);
-	Collected_Coin_Text_Block->SetText(FText::AsNumber(new_count_collected_coin));  // Устанавливаем значения текста в UI в новое значение
+   FText coin_text = FText::Format(FText::FromString("{0}/{1}"), FText::AsNumber(new_count_collected_coin), FText::AsNumber(All_Coins_Count));
+	Collected_Coin_Text_Block->SetText(coin_text);  // Устанавливаем значения текста в UI в новое значение
 }
 //------------------------------------------------------------------------------------------------------------

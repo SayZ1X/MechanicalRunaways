@@ -16,12 +16,16 @@ public:
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
 protected:
+	int All_Coins_Count;
+
 	UPROPERTY(meta = (BindWidget) ) UTextBlock* Collected_Coin_Text_Block; // Обязываем создать текстовый виджет для собраных монет в блюпринте
 	UPROPERTY(meta = (BindWidget) ) UTextBlock* Timer_Text; // Обязываем создать текстовый виджет для таймера в блюпринте
 
 private:
 	float ElapsedTime; // Переменная для таймера
 	float UpdateInterval; // Переменная для определения с каким интервалом должен обновляться таймер
+
+	void Get_All_Coin(int &all_coin_counter);
 
 	UFUNCTION() void Collected_Coin_Changed(const int new_count_collected_coin);
 };
