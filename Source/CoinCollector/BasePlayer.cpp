@@ -60,7 +60,7 @@ bool ABasePlayer::check_Jump()
 	FVector end_loc = start_loc + world_up * -51.0f;
 
 	// Дебаг для отрисовки луча
-	DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, false, 0.1f, 0, 1.0f);
+	//DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, true, 0.1f, 0, 1.0f);
 
 	FHitResult hit_result;
 
