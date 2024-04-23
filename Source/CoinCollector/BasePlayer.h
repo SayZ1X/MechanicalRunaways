@@ -21,17 +21,20 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component);
 
-	void Move_Up(float value);
-	void Move_Right(float value);
 	void Collect_Coin(ABaseCoin* coin);
 
 	int Counter_Collected_Coin;
+
+	UPROPERTY(BlueprintAssignable) FCounter_Collected_Coin_Changed Counter_Collected_Coin_Changed;
+
+protected:
+	void Move_Up(float value);
+	void Move_Right(float value);
 
 	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* overlapped_actor, AActor* other_actor);
 	UFUNCTION(BlueprintCallable) bool check_Jump();
 	UFUNCTION(BlueprintImplementableEvent) void Jump();
 
-	UPROPERTY(BlueprintAssignable) FCounter_Collected_Coin_Changed Counter_Collected_Coin_Changed;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCameraComponent* Camera;

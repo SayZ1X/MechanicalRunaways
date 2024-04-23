@@ -12,7 +12,8 @@ void UCoinCounterUserWidget::NativeConstruct()
    ElapsedTime = 0.0f;  // Устанавливаем базовое значение таймера
    UpdateInterval = 1.0f;  // Устанавливаем интервал обновления таймера
 
-   Get_All_Coin(All_Coins_Count);  // Устанавливаем значение количества всех монет на уровне
+   All_Coins_Count = Get_All_Coins();  // Устанавливаем значение количества всех монет на уровне
+   Count_Collected_Coins = 0;  // Устанавливаем значение количества собраных монет на уровне
    Collected_Coin_Changed(0);  // Вызываем обновление текста в виджете с базовым значением собраных монет
 
 	ABasePlayer* own_player = Cast<ABasePlayer>(GetOwningPlayerPawn() );
@@ -45,17 +46,19 @@ void UCoinCounterUserWidget::NativeTick(const FGeometry& MyGeometry, float InDel
    }
 }
 //------------------------------------------------------------------------------------------------------------
-void UCoinCounterUserWidget::Get_All_Coin(int &all_coin_counter)
+int UCoinCounterUserWidget::Get_All_Coins()
 {  // Функция для установки значения количества всех монеток на уровне
    TArray<AActor*> CoinActors;
    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCoin::StaticClass(), CoinActors);
-   all_coin_counter = CoinActors.Num();
+   int all_coin_counter = CoinActors.Num();
    CoinActors.Empty();
+   return all_coin_counter;
 }
 //------------------------------------------------------------------------------------------------------------
 void UCoinCounterUserWidget::Collected_Coin_Changed(const int new_count_collected_coin)
 {
 	check(Collected_Coin_Text_Block);
+   Count_Collected_Coins++;
    FText coin_text = FText::Format(FText::FromString("{0}/{1}"), FText::AsNumber(new_count_collected_coin), FText::AsNumber(All_Coins_Count));
 	Collected_Coin_Text_Block->SetText(coin_text);  // Устанавливаем значения текста в UI в новое значение
 }
