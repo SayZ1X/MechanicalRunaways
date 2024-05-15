@@ -5,35 +5,34 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "BasePlayer.generated.h"
+#include "Base_Player.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCounter_Collected_Coin_Changed, int, New_Count_Collected_Coin);
-class ABaseCoin;
+class ABase_Coin;
 
 //------------------------------------------------------------------------------------------------------------
 UCLASS()
-class COINCOLLECTOR_API ABasePlayer : public APawn
+class COINCOLLECTOR_API ABase_Player : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	ABasePlayer();
+	ABase_Player();
 
-	virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component);
+	virtual void BeginPlay();
 
-	void Collect_Coin(ABaseCoin* coin);
+	void Move_Up(float value);
+	void Move_Right(float value);
+	void Jump();
+	void Collect_Coin(ABase_Coin* coin);
 
 	int Counter_Collected_Coin;
 
 	UPROPERTY(BlueprintAssignable) FCounter_Collected_Coin_Changed Counter_Collected_Coin_Changed;
 
 protected:
-	void Move_Up(float value);
-	void Move_Right(float value);
-
+	UFUNCTION(BlueprintCallable) bool Check_Jump();
 	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* overlapped_actor, AActor* other_actor);
-	UFUNCTION(BlueprintCallable) bool check_Jump();
-	UFUNCTION(BlueprintImplementableEvent) void Jump();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Spring_Arm;

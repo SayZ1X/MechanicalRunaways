@@ -1,9 +1,9 @@
-﻿#include "BaseCoin.h"
+﻿#include "Base_Coin.h"
 #include "Kismet/GameplayStatics.h"
 
-// ABaseCoin
+// ABase_Coin
 //------------------------------------------------------------------------------------------------------------
-ABaseCoin::ABaseCoin()
+ABase_Coin::ABase_Coin()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	Was_Collected = false;
@@ -16,12 +16,12 @@ ABaseCoin::ABaseCoin()
 	Rotation_Rate = 100;
 }
 //------------------------------------------------------------------------------------------------------------
-void ABaseCoin::Tick(float delta_time)
+void ABase_Coin::Tick(float delta_time)
 {
 	AddActorLocalRotation(FRotator(0, Rotation_Rate * delta_time, 0));
 }
 //------------------------------------------------------------------------------------------------------------
-void ABaseCoin::Play_Custom_Death()
+void ABase_Coin::Play_Custom_Death()
 {
 	Rotation_Rate = 1500;
 
@@ -32,10 +32,10 @@ void ABaseCoin::Play_Custom_Death()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Coin sound is not set!"));
 
-	GetWorldTimerManager().SetTimer(Death_Timer_Handle, this, &ABaseCoin::Death_Timer_Complete, 0.5f, false);
+	GetWorldTimerManager().SetTimer(Death_Timer_Handle, this, &ABase_Coin::Death_Timer_Complete, 0.5f, false);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABaseCoin::Death_Timer_Complete()
+void ABase_Coin::Death_Timer_Complete()
 {
 	Destroy();
 }

@@ -1,10 +1,10 @@
-﻿#include "BasePlayer.h"
-#include "BaseCoin.h"
+﻿#include "Base_Player.h"
+#include "Base_Coin.h"
 #include "DrawDebugHelpers.h"
 
 // ABasePlayer
 //------------------------------------------------------------------------------------------------------------
-ABasePlayer::ABasePlayer()
+ABase_Player::ABase_Player()
 {
 	Counter_Collected_Coin = 0;
 
@@ -23,27 +23,39 @@ ABasePlayer::ABasePlayer()
 	OnActorBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::SetupPlayerInputComponent(UInputComponent* player_input_component)
+void ABase_Player::BeginPlay()
 {
-	Super::SetupPlayerInputComponent(player_input_component);
-	InputComponent->BindAxis("MoveUp", this, &ABasePlayer::Move_Up);
-	InputComponent->BindAxis("MoveRight", this, &ABasePlayer::Move_Right);
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ABasePlayer::Jump);
+	Super::BeginPlay();
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->Possess(this);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::Move_Up(float value)
+void ABase_Player::Move_Up(float value)
 {
 	FVector ForceToAdd = FVector(1, 0, 0) * Movement_Force * value;
 	Mesh->AddForce(ForceToAdd);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::Move_Right(float value)
+void ABase_Player::Move_Right(float value)
 {
 	FVector ForceToAdd = FVector(0, 1, 0) * Movement_Force * value;
 	Mesh->AddForce(ForceToAdd);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::Collect_Coin(ABaseCoin* coin)
+void ABase_Player::Jump()
+{
+	if(Check_Jump() )
+	{
+		Mesh->AddImpulse(FVector(0, 0, Jump_Impulse) );
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void ABase_Player::Collect_Coin(ABase_Coin* coin)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[%S] >>>>> other_actor name \"%s\""), __FUNCTION__, *coin->GetActorLabel());
 
@@ -53,7 +65,7 @@ void ABasePlayer::Collect_Coin(ABaseCoin* coin)
 	Counter_Collected_Coin_Changed.Broadcast(Counter_Collected_Coin);
 }
 //------------------------------------------------------------------------------------------------------------
-bool ABasePlayer::check_Jump()
+bool ABase_Player::Check_Jump()
 {
 	FVector start_loc = GetActorLocation();
 	FVector world_up = FVector(0, 0, 1);  // Вектор вертикальной  относительно мира, а не персонажа
@@ -67,12 +79,12 @@ bool ABasePlayer::check_Jump()
 	return GetWorld()->LineTraceSingleByChannel(hit_result, start_loc, end_loc, ECC_PhysicsBody);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABasePlayer::OnOverlap_Implementation(AActor* overlapped_actor, AActor* other_actor)
+void ABase_Player::OnOverlap_Implementation(AActor* overlapped_actor, AActor* other_actor)
 {
-	if (other_actor != Cast<ABaseCoin>(other_actor) )
+	if (other_actor != Cast<ABase_Coin>(other_actor) )
 		return;
 
-	ABaseCoin* coin = Cast<ABaseCoin>(other_actor);
+	ABase_Coin* coin = Cast<ABase_Coin>(other_actor);
 	if (!coin->Was_Collected)
 	{
 		if (coin)
