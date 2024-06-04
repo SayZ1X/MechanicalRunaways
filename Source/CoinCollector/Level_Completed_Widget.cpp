@@ -1,4 +1,5 @@
 #include "Level_Completed_Widget.h"
+#include "My_Game_Instance.h"
 #include "My_Game_Mode.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -15,35 +16,26 @@ void ULevel_Completed_Widget::NativeConstruct()
 //------------------------------------------------------------------------------------------------------------
 void ULevel_Completed_Widget::Restart_Level_Button_Clicked()
 {
-	UWorld* World = GetWorld();
-	if (World)
+	AMy_Game_Mode* game_mode = GetWorld()->GetAuthGameMode<AMy_Game_Mode>();
+	if (game_mode)
 	{
-		FString CurrentLevelName = World->GetMapName();
-
-		FString ShortLevelName = CurrentLevelName;
-		if (CurrentLevelName.StartsWith("UEDPIE_"))
-		{
-			ShortLevelName = CurrentLevelName.RightChop(CurrentLevelName.Find(TEXT("_")) + 1);
-		}
-
-		FName LevelName(*ShortLevelName);
-		UGameplayStatics::OpenLevel(World, LevelName);
+		game_mode->Restart_Level();
 	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ULevel_Completed_Widget::Next_Level_Button_Clicked()
 {
-	AMy_Game_Mode* GameMode = GetWorld()->GetAuthGameMode<AMy_Game_Mode>();
-	if (GameMode)
+	AMy_Game_Mode* game_mode = GetWorld()->GetAuthGameMode<AMy_Game_Mode>();
+	if (game_mode)
 	{
-		GameMode->Open_Next_Level();
+		game_mode->Open_Next_Level();
 	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ULevel_Completed_Widget::Main_Menu_Button_Clicked()
 {
-	AMy_Game_Mode* game_mode = GetWorld()->GetAuthGameMode<AMy_Game_Mode>();
-	if (game_mode)
-		game_mode->Menu_State();
+	UMy_Game_Instance* game_instance = Cast<UMy_Game_Instance>(GetWorld()->GetGameInstance() );
+	if (game_instance)
+		game_instance->Show_Menu();
 }
 //------------------------------------------------------------------------------------------------------------

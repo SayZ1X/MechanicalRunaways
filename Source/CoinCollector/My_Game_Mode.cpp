@@ -3,6 +3,7 @@
 #include "Base_Player.h"
 #include "Base_Coin.h"
 #include "My_HUD.h"
+#include "My_Game_Instance.h"
 #include "Kismet/GameplayStatics.h"
 
 // AMy_Game_Mode
@@ -24,44 +25,59 @@ AMy_Game_Mode::AMy_Game_Mode() : Super()
    Total_Coins = Get_All_Coins();
 }
 //------------------------------------------------------------------------------------------------------------
+void AMy_Game_Mode::BeginPlay()
+{
+   Super::BeginPlay();
+
+   In_Game_State();
+}
+//------------------------------------------------------------------------------------------------------------
+void AMy_Game_Mode::Restart_Level()
+{
+   UWorld* World = GetWorld();
+   if (World)
+   {
+      FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(World, true);
+      FName LevelName(*CurrentLevelName);
+
+      // Логирование имени уровня для отладки
+      UE_LOG(LogTemp, Warning, TEXT("Restarting Level: %s"), *CurrentLevelName);
+
+      UGameplayStatics::OpenLevel(World, LevelName);
+   }
+}
+//------------------------------------------------------------------------------------------------------------
 void AMy_Game_Mode::Open_Next_Level()
 {
    UWorld* World = GetWorld();
    if (World)
    {
-      // Получаем имя текущего уровня
-      FString CurrentLevelName = World->GetMapName();
-
-      // В режиме PIE (Play In Editor) имя уровня будет иметь префикс "UEDPIE_" и суффикс с индексом PIE
-      FString ShortLevelName = CurrentLevelName;
-      if (CurrentLevelName.StartsWith("UEDPIE_"))
-      {
-         // Убираем префикс "UEDPIE_"
-         ShortLevelName = CurrentLevelName.RightChop(CurrentLevelName.Find(TEXT("_")) + 1);
-      }
+      // Получаем имя текущего уровня без префиксов PIE
+      FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(World, true);
 
       // Лог текущего уровня для отладки
-      UE_LOG(LogTemp, Warning, TEXT("ShortLevelName: %s"), *ShortLevelName);
+      UE_LOG(LogTemp, Warning, TEXT("Current Level: %s"), *CurrentLevelName);
 
       // Поиск подстроки "LVL_"
-      int32 FoundIndex = ShortLevelName.Find(TEXT("LVL_"));
+      int FoundIndex = CurrentLevelName.Find(TEXT("LVL_"));
       if (FoundIndex != INDEX_NONE)
       {
          // Извлечение числовой части уровня
-         FString LevelNumberString = ShortLevelName.Mid(FoundIndex + 4); // 4 - длина "LVL_"
+         FString LevelNumberString = CurrentLevelName.Mid(FoundIndex + 4); // 4 - длина "LVL_"
          if (LevelNumberString.IsNumeric())
          {
-            int32 CurrentLevelIndex = FCString::Atoi(*LevelNumberString);
-            int32 NextLevelIndex = CurrentLevelIndex + 1;
+            int CurrentLevelIndex = FCString::Atoi(*LevelNumberString);
+            int NextLevelIndex = CurrentLevelIndex + 1;
 
             FString NextLevelName = FString::Printf(TEXT("LVL_%d"), NextLevelIndex);
             FName NextLevelFName(*NextLevelName);
 
             // Лог следующего уровня для отладки
-            UE_LOG(LogTemp, Warning, TEXT("NextLevelName: %s"), *NextLevelName);
+            UE_LOG(LogTemp, Warning, TEXT("Next Level: %s"), *NextLevelName);
 
             // Загружаем следующий уровень
             UGameplayStatics::OpenLevel(World, NextLevelFName);
+
             return;
          }
       }
@@ -79,43 +95,22 @@ void AMy_Game_Mode::Check_Win(const int new_count_collected_coin)
    }
 }
 //------------------------------------------------------------------------------------------------------------
-void AMy_Game_Mode::Menu_State()
+void AMy_Game_Mode::In_Game_State()
 {
+   UMy_Game_Instance* game_instance = Cast<UMy_Game_Instance>(GetWorld()->GetGameInstance() );
    APlayerController* player_controller = GetWorld()->GetFirstPlayerController();
+   
    if (player_controller)
    {
       player_controller->SetShowMouseCursor(true);
-
-      AMy_HUD* HUD = Cast<AMy_HUD>(player_controller->GetHUD() );
-      if (HUD)
+      if (!game_instance->isMenu_Open)
       {
-         HUD->Menu_State();
+         AMy_HUD* HUD = Cast<AMy_HUD>(player_controller->GetHUD());
+         if (HUD)
+         {
+            HUD->In_Game_State();
+         }
       }
-   }
-}
-//------------------------------------------------------------------------------------------------------------
-void AMy_Game_Mode::In_Game_State()
-{
-   APlayerController* player_controller = GetWorld()->GetFirstPlayerController();
-   if (player_controller)
-   {
-      player_controller->SetShowMouseCursor(false);
-      player_controller->bShowMouseCursor = false;
-
-      AMy_HUD* HUD = Cast<AMy_HUD>(player_controller->GetHUD() );
-      if (HUD)
-      {
-         HUD->In_Game_State();
-      }
-   }
-}
-//------------------------------------------------------------------------------------------------------------
-void AMy_Game_Mode::Close_Game()
-{
-   APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-   if (PlayerController)
-   {
-      PlayerController->ConsoleCommand("quit");
    }
 }
 //------------------------------------------------------------------------------------------------------------

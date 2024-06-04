@@ -30,7 +30,6 @@ void ABase_Player::BeginPlay()
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
-		PlayerController->bShowMouseCursor = true;
 		PlayerController->Possess(this);
 	}
 }

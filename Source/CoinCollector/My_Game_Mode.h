@@ -16,12 +16,13 @@ class COINCOLLECTOR_API AMy_Game_Mode : public AGameModeBase
 public:
    AMy_Game_Mode();
 
+   virtual void BeginPlay();
+
+   void Restart_Level();
    void Open_Next_Level();
 
    UFUNCTION() void Check_Win(const int new_count_collected_coin);
-   UFUNCTION() void Menu_State();
    UFUNCTION() void In_Game_State();
-   UFUNCTION() void Close_Game();
 
    UPROPERTY(BlueprintAssignable) FCheck_Level_Win Check_Level_Win;
 

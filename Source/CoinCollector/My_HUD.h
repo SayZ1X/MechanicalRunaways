@@ -13,14 +13,12 @@ class COINCOLLECTOR_API AMy_HUD : public AHUD
 public:
 	virtual void BeginPlay();
 
-	UFUNCTION() void Menu_State();
 	UFUNCTION() void In_Game_State();
-	UFUNCTION() void Level_Completed_State();
+	//UFUNCTION() void Level_Completed_State();
 
 private:
 	UFUNCTION() void Change_On_Win(bool is_win);
 
-	UPROPERTY(EditDefaultsOnly) TSubclassOf<UUserWidget> HUD_Main_Menu;
 	UPROPERTY(EditDefaultsOnly) TSubclassOf<UUserWidget> Default_HUD_Widget;
 	UPROPERTY(EditDefaultsOnly) TSubclassOf<UUserWidget> Win_HUD_Widget;
 	UPROPERTY() UUserWidget* UserWidget;
