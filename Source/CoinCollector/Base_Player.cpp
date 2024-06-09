@@ -17,6 +17,7 @@ ABase_Player::ABase_Player()
 	Camera->SetupAttachment(Spring_Arm);
 
 	Mesh->SetSimulatePhysics(true);
+
 	Movement_Force = 100000.0f;
 	Jump_Impulse = 100000.0f;
 

@@ -34,9 +34,9 @@ void UMy_Game_Instance::Show_Menu()
       {
          Main_Menu_Widget->AddToViewport();
 
-         Open_UI();
-
          isMenu_Open = true;
+
+         Open_UI();
       }
    }
 }
@@ -92,11 +92,15 @@ void UMy_Game_Instance::Check_UI()
       if (Count_UI <= 0)
       {
          player_controller->bShowMouseCursor = false;
+         player_controller->SetInputMode(FInputModeGameOnly());
+         player_controller->EnableInput(player_controller);
          UE_LOG(LogTemp, Warning, TEXT("[%S] >>>>> SetShowMouseCursor State = false"), __FUNCTION__);
       }
       else
       {
          player_controller->bShowMouseCursor = true;
+         player_controller->SetInputMode(FInputModeUIOnly());
+         player_controller->DisableInput(player_controller);
          UE_LOG(LogTemp, Warning, TEXT("[%S] >>>>> SetShowMouseCursor State = true"), __FUNCTION__);
       }
    }

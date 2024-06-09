@@ -103,6 +103,9 @@ void AMy_Game_Mode::In_Game_State()
    if (player_controller)
    {
       player_controller->SetShowMouseCursor(true);
+      player_controller->SetInputMode(FInputModeUIOnly());
+      player_controller->DisableInput(player_controller);
+
       if (!game_instance->isMenu_Open)
       {
          AMy_HUD* HUD = Cast<AMy_HUD>(player_controller->GetHUD());
