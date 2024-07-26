@@ -10,7 +10,7 @@
 //-------------------------------------------------------------------------------------------------------------
 AMy_Game_Mode::AMy_Game_Mode() : Super()
 {
-   ConstructorHelpers::FClassFinder<APawn> main_character(TEXT("/Game/CoinCollector/Blueprints/BP_Player") );
+   ConstructorHelpers::FClassFinder<APawn> main_character(TEXT("/Game/CoinCollector/Blueprints/Characters/Robot_UwU/BP_Player") );
    DefaultPawnClass = main_character.Class;
 
    ConstructorHelpers::FClassFinder<AMy_HUD> HUD_widget(TEXT("/Game/CoinCollector/UI/BP_HUD") );
