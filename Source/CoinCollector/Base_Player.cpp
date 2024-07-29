@@ -17,11 +17,13 @@ ABase_Player::ABase_Player()
 	Head_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Head_Mesh");
 	Camera_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Camera_Spring_Arm");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	Head_Flashlight = CreateDefaultSubobject<USpotLightComponent>("Head_Flashlight");
 
 	RootComponent = Scene_Component;
 	Body_Mesh->SetupAttachment(Scene_Component);
 	Head_Spring_Arm->SetupAttachment(Body_Mesh);
 	Head_Mesh->SetupAttachment(Head_Spring_Arm);
+	Head_Flashlight->SetupAttachment(Head_Mesh);
 	Camera_Spring_Arm->SetupAttachment(Body_Mesh);
 	Camera->SetupAttachment(Camera_Spring_Arm);
 
@@ -138,6 +140,20 @@ void ABase_Player::Zoom_Increase()
 void ABase_Player::Zoom_Decrease()
 {
 	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 550.0f, 1350.0f);
+}
+//------------------------------------------------------------------------------------------------------------
+void ABase_Player::Turn_On_Off_Fleshlight()
+{
+	Is_Flashlight_Turn_On = !Is_Flashlight_Turn_On;
+
+	if(Is_Flashlight_Turn_On)
+	{
+		Head_Flashlight->SetVisibility(true);
+	}
+	else
+	{
+		Head_Flashlight->SetVisibility(false);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ABase_Player::Collect_Coin(ABase_Coin* coin)

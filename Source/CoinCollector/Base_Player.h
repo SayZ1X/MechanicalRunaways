@@ -4,6 +4,7 @@
 #include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Base_Player.generated.h"
@@ -35,6 +36,7 @@ public:
 	void Jump();
 	void Zoom_Increase();
 	void Zoom_Decrease();
+	void Turn_On_Off_Fleshlight();
 	//-- Input Functions --
 
 	void Collect_Coin(ABase_Coin* coin);
@@ -58,6 +60,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USkeletalMeshComponent* Head_Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Camera_Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpotLightComponent* Head_Flashlight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool Is_Flashlight_Turn_On;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Movement_Force;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Jump_Impulse;

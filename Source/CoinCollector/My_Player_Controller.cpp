@@ -45,6 +45,8 @@ void AMy_Player_Controller::SetupInputComponent()
    
       enhanced_input_component->BindAction(Zoom_Decrease_Action, ETriggerEvent::Started, this, &ThisClass::Zoom_Decrease);
       enhanced_input_component->BindAction(Zoom_Increase_Action, ETriggerEvent::Started, this, &ThisClass::Zoom_Increase);
+
+      enhanced_input_component->BindAction(Turn_On_Off_Fleshlight_Action, ETriggerEvent::Started, this, &ThisClass::Turn_On_Off_Fleshlight);
    }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -133,6 +135,14 @@ void AMy_Player_Controller::Zoom_Decrease(const FInputActionValue& value)
    if (ABase_Player* player_pawn = Cast<ABase_Player>(GetPawn()))
    {
       player_pawn->Zoom_Decrease();
+   }
+}
+//------------------------------------------------------------------------------------------------------------
+void AMy_Player_Controller::Turn_On_Off_Fleshlight(const FInputActionValue& value)
+{
+   if (ABase_Player* player_pawn = Cast<ABase_Player>(GetPawn()))
+   {
+      player_pawn->Turn_On_Off_Fleshlight();
    }
 }
 //------------------------------------------------------------------------------------------------------------

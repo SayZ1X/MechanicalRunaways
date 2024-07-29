@@ -34,6 +34,7 @@ protected:
 	void Jump(const FInputActionValue& value);
 	void Zoom_Increase(const FInputActionValue& value);
 	void Zoom_Decrease(const FInputActionValue& value);
+	void Turn_On_Off_Fleshlight(const FInputActionValue& value);
 
 	//-- Input Actions -- 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
@@ -59,6 +60,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputAction* Zoom_Decrease_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Turn_On_Off_Fleshlight_Action;
 
 };
 //------------------------------------------------------------------------------------------------------------
