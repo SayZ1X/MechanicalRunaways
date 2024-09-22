@@ -11,7 +11,6 @@ ABase_Player::ABase_Player()
 {
 	Counter_Collected_Coin = 0;
 
-	Scene_Component = CreateDefaultSubobject<USceneComponent>("Scene_Component");
 	Body_Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Body_Mesh");
 	Head_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Head_Spring_Arm");
 	Head_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Head_Mesh");
@@ -19,8 +18,7 @@ ABase_Player::ABase_Player()
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Head_Flashlight = CreateDefaultSubobject<USpotLightComponent>("Head_Flashlight");
 
-	RootComponent = Scene_Component;
-	Body_Mesh->SetupAttachment(Scene_Component);
+	RootComponent = Body_Mesh;
 	Head_Spring_Arm->SetupAttachment(Body_Mesh);
 	Head_Mesh->SetupAttachment(Head_Spring_Arm);
 	Head_Flashlight->SetupAttachment(Head_Mesh);
@@ -175,10 +173,12 @@ void ABase_Player::Turn_Camera()
 		float DeltaMouseY;
 		PlayerController->GetInputMouseDelta(DeltaMouseX, DeltaMouseY);
 
-		FRotator NewRotation = GetControlRotation();
-		NewRotation.Yaw += DeltaMouseX;
+		if (DeltaMouseX != 0.0f)
+		{
+			FRotator DeltaRotationX(0.0f, DeltaMouseX, 0.0f);
 
-		Camera_Spring_Arm->AddRelativeRotation(NewRotation);
+			Camera_Spring_Arm->AddRelativeRotation(DeltaRotationX);
+		}
 	}
 }
 //------------------------------------------------------------------------------------------------------------

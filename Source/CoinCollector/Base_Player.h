@@ -54,7 +54,6 @@ protected:
 	UFUNCTION(BlueprintCallable) bool Check_Jump();
 	UFUNCTION(BlueprintNativeEvent) void OnOverlap(AActor* overlapped_actor, AActor* other_actor);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USceneComponent* Scene_Component;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UStaticMeshComponent* Body_Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Head_Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USkeletalMeshComponent* Head_Mesh;
