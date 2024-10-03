@@ -52,6 +52,8 @@ void ABase_Player::BeginPlay()
 //------------------------------------------------------------------------------------------------------------
 void ABase_Player::Tick(float delta_seconds)
 {
+	Super::Tick(delta_seconds);
+
 	Interp_Angle_Of_Head_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Head_Lean_Forward_Backward, Target_Angle_Of_Head_Lean_Forward_Backward, delta_seconds, Head_Lean_Speed);
 	Interp_Angle_Of_Head_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Head_Lean_Left_Right, Target_Angle_Of_Head_Lean_Left_Right, delta_seconds, Head_Lean_Speed);
 
