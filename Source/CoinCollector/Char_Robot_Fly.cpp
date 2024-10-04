@@ -1,4 +1,5 @@
 #include "Char_Robot_Fly.h"
+#include "Engine/Engine.h"
 
 // AChar_Robot_Fly
 //------------------------------------------------------------------------------------------------------------
@@ -25,6 +26,9 @@ AChar_Robot_Fly::AChar_Robot_Fly()
 	Target_Camera_Distance = Camera_Distance;
 	Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 
+	Body_Lean_Speed = 4.0f;
+	Body_Rotation_Angle = 15.0f;
+
 	PrimaryActorTick.bCanEverTick = true;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -38,7 +42,8 @@ void AChar_Robot_Fly::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
-	Turn_Camera();
+	Interp_Angle_Of_Body_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Forward_Backward, Target_Angle_Of_Body_Lean_Forward_Backward, delta_seconds, Body_Lean_Speed);
+	Interp_Angle_Of_Body_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Left_Right, Target_Angle_Of_Body_Lean_Left_Right, delta_seconds, Body_Lean_Speed);
 
 	if (Camera_Distance != Target_Camera_Distance)
 	{
@@ -46,53 +51,64 @@ void AChar_Robot_Fly::Tick(float delta_seconds)
 		Camera_Distance = FMath::FInterpTo(Camera_Distance, Target_Camera_Distance, delta_seconds, 2.0f);
 		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 	}
+
+	Turn_Camera();
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::Move_Forward_Triggered(bool is_button_pressed)
 {
-	if (Movement_Component && (Movement_Component->UpdatedComponent == RootComponent))
-	{
+	Is_Moving_Forward = is_button_pressed;
 
-		FVector Direction = Camera_Spring_Arm->GetForwardVector() * 100;
-		Direction.Z = 0.0f;
+	Move_For_Axis_Triggered(true, false);
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Move_Forward_Completed(bool is_button_pressed)
+{
+	Is_Moving_Forward = is_button_pressed;
 
-		Movement_Component->AddInputVector(Direction);
-	}
+	Move_Button_Completed(false, Is_Moving_Backward, Target_Angle_Of_Body_Lean_Forward_Backward);
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::Move_Backward_Triggered(bool is_button_pressed)
 {
-	if (Movement_Component && (Movement_Component->UpdatedComponent == RootComponent))
-	{
+	Is_Moving_Backward = is_button_pressed;
 
-		FVector Direction = Camera_Spring_Arm->GetForwardVector() * -100;
-		Direction.Z = 0.0f;
-
-		Movement_Component->AddInputVector(Direction);
-	}
+	Move_For_Axis_Triggered(true, true);
 }
 //------------------------------------------------------------------------------------------------------------
-void AChar_Robot_Fly::Move_Right_Triggered(bool is_button_pressed)
+void AChar_Robot_Fly::Move_Backward_Completed(bool is_button_pressed)
 {
-	if (Movement_Component && (Movement_Component->UpdatedComponent == RootComponent))
-	{
+	Is_Moving_Backward = is_button_pressed;
 
-		FVector Direction = Camera_Spring_Arm->GetRightVector() * 100;
-		Direction.Z = 0.0f;
-
-		Movement_Component->AddInputVector(Direction);
-	}
+	Move_Button_Completed(true, Is_Moving_Forward, Target_Angle_Of_Body_Lean_Forward_Backward);
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::Move_Left_Triggered(bool is_button_pressed)
 {
-	if (Movement_Component && (Movement_Component->UpdatedComponent == RootComponent))
-	{
-		FVector Direction = Camera_Spring_Arm->GetRightVector() * -100;
-		Direction.Z = 0.0f;
+	Is_Moving_Left = is_button_pressed;
 
-		Movement_Component->AddInputVector(Direction);
-	}
+	Move_For_Axis_Triggered(false, true);
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Move_Left_Completed(bool is_button_pressed)
+{
+	Is_Moving_Left = is_button_pressed;
+
+	Move_Button_Completed(true, Is_Moving_Right, Target_Angle_Of_Body_Lean_Left_Right);
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Move_Right_Triggered(bool is_button_pressed)
+{
+	Is_Moving_Right = is_button_pressed;
+
+	Move_For_Axis_Triggered(false, false);
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Move_Right_Completed(bool is_button_pressed)
+{
+	Is_Moving_Right = is_button_pressed;
+
+	Move_Button_Completed(false, Is_Moving_Left, Target_Angle_Of_Body_Lean_Left_Right);
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::Move_Up_Triggered(bool is_button_pressed)
@@ -161,6 +177,85 @@ void AChar_Robot_Fly::Turn_Camera()
 			FRotator NewRotation(NewPitch, CurrentRotation.Yaw + DeltaMouseX, 0.0f);
 			Camera_Spring_Arm->SetRelativeRotation(NewRotation);
 		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis)
+{
+	if (Movement_Component && (Movement_Component->UpdatedComponent == RootComponent))
+	{
+		if (is_forward_backward)
+		{
+			if (!is_negative_axis)
+			{
+				FVector Direction = Camera_Spring_Arm->GetForwardVector() * 100;
+				Direction.Z = 0.0f;
+
+				if (Is_Moving_Backward)
+					Target_Angle_Of_Body_Lean_Forward_Backward = 0;
+				else
+					Target_Angle_Of_Body_Lean_Forward_Backward = Body_Rotation_Angle;
+
+				Movement_Component->AddInputVector(Direction);
+			}
+			else
+			{
+				FVector Direction = Camera_Spring_Arm->GetForwardVector() * -100;
+				Direction.Z = 0.0f;
+
+				if (Is_Moving_Forward)
+					Target_Angle_Of_Body_Lean_Forward_Backward = 0;
+				else
+					Target_Angle_Of_Body_Lean_Forward_Backward = -Body_Rotation_Angle;
+
+				Movement_Component->AddInputVector(Direction);
+			}
+		}
+		else
+		{
+			if (!is_negative_axis)
+			{
+				FVector Direction = Camera_Spring_Arm->GetRightVector() * 100;
+				Direction.Z = 0.0f;
+
+				if (Is_Moving_Left)
+					Target_Angle_Of_Body_Lean_Left_Right = 0;
+				else
+					Target_Angle_Of_Body_Lean_Left_Right = Body_Rotation_Angle;
+
+				Movement_Component->AddInputVector(Direction);
+			}
+			else
+			{
+				FVector Direction = Camera_Spring_Arm->GetRightVector() * -100;
+				Direction.Z = 0.0f;
+
+				if(Is_Moving_Right)
+					Target_Angle_Of_Body_Lean_Left_Right = 0;
+				else
+					Target_Angle_Of_Body_Lean_Left_Right = -Body_Rotation_Angle;
+
+				Movement_Component->AddInputVector(Direction);
+			}
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, float& changed_axis)
+{
+	if (negative_axis_completed)
+	{
+		if (opposite_key_triggered)
+			changed_axis = Angle_Of_Body_Lean;
+		else
+			changed_axis = 0;
+	}
+	else
+	{
+		if (opposite_key_triggered)
+			changed_axis = -Angle_Of_Body_Lean;
+		else
+			changed_axis = 0;
 	}
 }
 //------------------------------------------------------------------------------------------------------------

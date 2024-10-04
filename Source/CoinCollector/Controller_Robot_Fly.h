@@ -23,15 +23,14 @@ protected:
 	virtual void SetupInputComponent() override;
 
 	//-- Input Functions --
-	//void Move_Forward_Completed(const FInputActionValue& value);
-	//void Move_Backward_Completed(const FInputActionValue& value);
-	//void Move_Left_Completed(const FInputActionValue& value);
-	//void Move_Right_Completed(const FInputActionValue& value);
-
 	void Move_Forward_Triggered(const FInputActionValue& value);
+	void Move_Forward_Completed(const FInputActionValue& value);
 	void Move_Backward_Triggered(const FInputActionValue& value);
+	void Move_Backward_Completed(const FInputActionValue& value);
 	void Move_Left_Triggered(const FInputActionValue& value);
+	void Move_Left_Completed(const FInputActionValue& value);
 	void Move_Right_Triggered(const FInputActionValue& value);
+	void Move_Right_Completed(const FInputActionValue& value);
 	void Move_Up_Triggered(const FInputActionValue& value);
 	void Move_Down_Triggered(const FInputActionValue& value);
 
