@@ -216,11 +216,19 @@ void ABase_Player::Move_For_Axis_Triggered(bool is_forward_backward, bool is_neg
 		if(!is_negative_axis)
 		{
 			Body_Mesh->AddForce(com_vector * Movement_Force);
-			Target_Angle_Of_Head_Lean_Forward_Backward = Angle_Of_Head_Lean;
+
+			if(Is_Moving_Backward)
+				Target_Angle_Of_Head_Lean_Forward_Backward = 0;
+			else
+				Target_Angle_Of_Head_Lean_Forward_Backward = Angle_Of_Head_Lean;
 		}
 		else
 		{
 			Body_Mesh->AddForce(com_vector * Movement_Force * -1);
+
+			if (Is_Moving_Forward)
+				Target_Angle_Of_Head_Lean_Forward_Backward = 0;
+			else
 			Target_Angle_Of_Head_Lean_Forward_Backward = -Angle_Of_Head_Lean;
 		}
 	}
@@ -234,12 +242,20 @@ void ABase_Player::Move_For_Axis_Triggered(bool is_forward_backward, bool is_neg
 		if (!is_negative_axis)
 		{
 			Body_Mesh->AddForce(com_vector * Movement_Force);
-			Target_Angle_Of_Head_Lean_Left_Right = Angle_Of_Head_Lean;
+
+			if (Is_Moving_Left)
+				Target_Angle_Of_Head_Lean_Left_Right = 0;
+			else
+				Target_Angle_Of_Head_Lean_Left_Right = Angle_Of_Head_Lean;
 		}
 		else
 		{
 			Body_Mesh->AddForce(com_vector * Movement_Force * -1);
-			Target_Angle_Of_Head_Lean_Left_Right = -Angle_Of_Head_Lean;
+
+			if (Is_Moving_Right)
+				Target_Angle_Of_Head_Lean_Left_Right = 0;
+			else
+				Target_Angle_Of_Head_Lean_Left_Right = -Angle_Of_Head_Lean;
 		}
 	}
 }
