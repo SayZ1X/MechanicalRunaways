@@ -29,36 +29,33 @@ AChar_Robot_Fly::AChar_Robot_Fly()
 	Body_Lean_Speed = 4.0f;
 	Body_Rotation_Angle = 15.0f;
 
+	Blades_Current_Rotation = 0.0f;
+	Blades_Rotation_Speed = 1800.0f;
+
 	PrimaryActorTick.bCanEverTick = true;
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
-	Interp_Angle_Of_Body_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Forward_Backward, Target_Angle_Of_Body_Lean_Forward_Backward, delta_seconds, Body_Lean_Speed);
-	Interp_Angle_Of_Body_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Left_Right, Target_Angle_Of_Body_Lean_Left_Right, delta_seconds, Body_Lean_Speed);
-
-	if (Camera_Distance != Target_Camera_Distance)
-	{
-
-		Camera_Distance = FMath::FInterpTo(Camera_Distance, Target_Camera_Distance, delta_seconds, 2.0f);
-		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
-	}
-
 	Turn_Camera();
+	Change_Camera_Distance(delta_seconds);
+	Change_Body_Angle_Lean(delta_seconds);
+	Rotate_Blades(delta_seconds);
 }
 //------------------------------------------------------------------------------------------------------------
 void AChar_Robot_Fly::Move_Forward_Triggered(bool is_button_pressed)
 {
 	Is_Moving_Forward = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_For_Axis_Triggered(true, false);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -66,6 +63,7 @@ void AChar_Robot_Fly::Move_Forward_Completed(bool is_button_pressed)
 {
 	Is_Moving_Forward = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_Button_Completed(false, Is_Moving_Backward, Target_Angle_Of_Body_Lean_Forward_Backward);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -73,6 +71,7 @@ void AChar_Robot_Fly::Move_Backward_Triggered(bool is_button_pressed)
 {
 	Is_Moving_Backward = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_For_Axis_Triggered(true, true);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -80,6 +79,7 @@ void AChar_Robot_Fly::Move_Backward_Completed(bool is_button_pressed)
 {
 	Is_Moving_Backward = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_Button_Completed(true, Is_Moving_Forward, Target_Angle_Of_Body_Lean_Forward_Backward);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -87,6 +87,7 @@ void AChar_Robot_Fly::Move_Left_Triggered(bool is_button_pressed)
 {
 	Is_Moving_Left = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_For_Axis_Triggered(false, true);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -94,6 +95,7 @@ void AChar_Robot_Fly::Move_Left_Completed(bool is_button_pressed)
 {
 	Is_Moving_Left = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_Button_Completed(true, Is_Moving_Right, Target_Angle_Of_Body_Lean_Left_Right);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -101,6 +103,7 @@ void AChar_Robot_Fly::Move_Right_Triggered(bool is_button_pressed)
 {
 	Is_Moving_Right = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_For_Axis_Triggered(false, false);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -108,6 +111,7 @@ void AChar_Robot_Fly::Move_Right_Completed(bool is_button_pressed)
 {
 	Is_Moving_Right = is_button_pressed;
 
+	Change_State_If_Moving();
 	Move_Button_Completed(false, Is_Moving_Left, Target_Angle_Of_Body_Lean_Left_Right);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -165,9 +169,9 @@ void AChar_Robot_Fly::Turn_Camera()
 		if (DeltaMouseX != 0.0f || DeltaMouseY != 0.0f)
 		{
 
-			float MinPitch = -80.0f;
-			float MaxPitch = 80.0f;
-
+			float MinPitch = -50.0f;
+			float MaxPitch = 30.0f;
+			
 			FRotator CurrentRotation = Camera_Spring_Arm->GetRelativeRotation();
 
 			float NewPitch = CurrentRotation.Pitch + DeltaMouseY;
@@ -257,5 +261,51 @@ void AChar_Robot_Fly::Move_Button_Completed(bool negative_axis_completed, bool o
 		else
 			changed_axis = 0;
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Change_State_If_Moving()
+{
+	if(Is_Moving_Forward ||
+		Is_Moving_Backward ||
+		Is_Moving_Left ||
+		Is_Moving_Right)
+	{
+		Is_Moving = true;
+	}
+	else
+	{
+		Is_Moving = false;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+bool AChar_Robot_Fly::Get_Is_Moving()
+{
+	return Is_Moving;
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Rotate_Blades(float delta_seconds)
+{
+	Blades_Current_Rotation += Blades_Rotation_Speed * delta_seconds;
+
+	if (Blades_Current_Rotation >= 360.0f)
+	{
+		Blades_Current_Rotation -= 360.0f;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Change_Camera_Distance(float delta_seconds)
+{
+	if (Camera_Distance != Target_Camera_Distance)
+	{
+
+		Camera_Distance = FMath::FInterpTo(Camera_Distance, Target_Camera_Distance, delta_seconds, 2.0f);
+		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AChar_Robot_Fly::Change_Body_Angle_Lean(float delta_seconds)
+{
+	Interp_Angle_Of_Body_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Forward_Backward, Target_Angle_Of_Body_Lean_Forward_Backward, delta_seconds, Body_Lean_Speed);
+	Interp_Angle_Of_Body_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Left_Right, Target_Angle_Of_Body_Lean_Left_Right, delta_seconds, Body_Lean_Speed);
 }
 //------------------------------------------------------------------------------------------------------------

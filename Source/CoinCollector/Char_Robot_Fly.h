@@ -45,6 +45,12 @@ protected:
 	void Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis);
 	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, float& changed_axis);
 
+	UFUNCTION(BlueprintCallable) void Change_State_If_Moving();
+	UFUNCTION(BlueprintCallable) bool Get_Is_Moving();
+	UFUNCTION(BlueprintCallable) void Rotate_Blades(float delta_seconds);
+	UFUNCTION(BlueprintCallable) void Change_Camera_Distance(float delta_seconds);
+	UFUNCTION(BlueprintCallable) void Change_Body_Angle_Lean(float delta_seconds);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USceneComponent* Scene_Component;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USkeletalMeshComponent* Robot_Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCapsuleComponent* Capsule_Component;
@@ -66,10 +72,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (ClampMin = "-15.0", ClampMax = "15.0")) float Target_Angle_Of_Body_Lean_Left_Right;
 	UPROPERTY(BlueprintReadOnly, meta = (ClampMin = "-15.0", ClampMax = "15.0")) float Interp_Angle_Of_Body_Lean_Left_Right;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Forward;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Backward;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Left;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Right;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Blades_Current_Rotation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Blades_Rotation_Speed; //RPM
 
 };
 //------------------------------------------------------------------------------------------------------------
