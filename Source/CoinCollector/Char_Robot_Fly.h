@@ -8,7 +8,6 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
-#include "Components/SceneComponent.h"
 #include "Char_Robot_Fly.generated.h"
 
 //------------------------------------------------------------------------------------------------------------
@@ -51,7 +50,6 @@ protected:
 	UFUNCTION(BlueprintCallable) void Change_Camera_Distance(float delta_seconds);
 	UFUNCTION(BlueprintCallable) void Change_Body_Angle_Lean(float delta_seconds);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USceneComponent* Scene_Component;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USkeletalMeshComponent* Robot_Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCapsuleComponent* Capsule_Component;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Camera_Spring_Arm;

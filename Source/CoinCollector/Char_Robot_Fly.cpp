@@ -5,16 +5,14 @@
 //------------------------------------------------------------------------------------------------------------
 AChar_Robot_Fly::AChar_Robot_Fly()
 {
-	Scene_Component = CreateDefaultSubobject<USceneComponent>("Scene_Component");
 	Robot_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Robot_Mesh");
 	Capsule_Component = CreateDefaultSubobject<UCapsuleComponent>("Capsule_Component");
 	Camera_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Camera_Spring_Arm");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Flashlight_Component = CreateDefaultSubobject<USpotLightComponent>("Flashlight_Component");
 
-	RootComponent = Scene_Component;
-	Robot_Mesh->SetupAttachment(Scene_Component);
-	Capsule_Component->SetupAttachment(Robot_Mesh);
+	RootComponent = Capsule_Component;
+	Robot_Mesh->SetupAttachment(Capsule_Component);
 	Camera_Spring_Arm->SetupAttachment(Robot_Mesh);
 	Camera->SetupAttachment(Camera_Spring_Arm);
 	Flashlight_Component->SetupAttachment(Robot_Mesh);
