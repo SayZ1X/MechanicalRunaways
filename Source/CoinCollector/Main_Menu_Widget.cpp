@@ -7,7 +7,7 @@ void UMain_Menu_Widget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Start_Button->OnClicked.AddDynamic(this, &ThisClass::Start_Button_Clicked);
+	Play_Local_Button->OnClicked.AddDynamic(this, &ThisClass::Start_Button_Clicked);
 	Exit_Button->OnClicked.AddDynamic(this, &ThisClass::Exit_Button_Clicked);
 }
 //------------------------------------------------------------------------------------------------------------

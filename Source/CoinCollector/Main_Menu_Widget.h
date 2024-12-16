@@ -13,8 +13,8 @@ class COINCOLLECTOR_API UMain_Menu_Widget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(meta = (BindWidget) ) UImage* Background_Image;
-	UPROPERTY(meta = (BindWidget) ) UButton* Start_Button;
+	UPROPERTY(meta = (BindWidget) ) UButton* Play_Local_Button;
+	UPROPERTY(meta = (BindWidget) ) UButton* Play_Online_Button;
 	UPROPERTY(meta = (BindWidget) ) UButton* Exit_Button;
 
 private:
