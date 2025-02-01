@@ -118,7 +118,7 @@ void AController_Robot_Orb::Jump(const FInputActionValue& value)
 {
    if (ARobot_Orb* player_pawn = Cast<ARobot_Orb>(GetPawn() ) )
    {
-      player_pawn->Jump();
+      player_pawn->Jump(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void AController_Robot_Orb::Zoom_Increase(const FInputActionValue& value)
 {
    if (ARobot_Orb* player_pawn = Cast<ARobot_Orb>(GetPawn()))
    {
-      player_pawn->Zoom_Increase();
+      player_pawn->Zoom_Increase(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void AController_Robot_Orb::Zoom_Decrease(const FInputActionValue& value)
 {
    if (ARobot_Orb* player_pawn = Cast<ARobot_Orb>(GetPawn()))
    {
-      player_pawn->Zoom_Decrease();
+      player_pawn->Zoom_Decrease(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ void AController_Robot_Orb::Turn_On_Off_Fleshlight(const FInputActionValue& valu
 {
    if (ARobot_Orb* player_pawn = Cast<ARobot_Orb>(GetPawn()))
    {
-      player_pawn->Turn_On_Off_Fleshlight();
+      player_pawn->Turn_On_Off_Fleshlight(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------

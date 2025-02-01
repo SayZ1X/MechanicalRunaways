@@ -3,6 +3,9 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/InputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 
 // ABasePlayer
 //------------------------------------------------------------------------------------------------------------
@@ -33,17 +36,13 @@ ARobot_Orb::ARobot_Orb()
 	Head_Lean_Speed = 7.0f;
 	Angle_Of_Head_Lean = 20.0f;
 
+	bReplicates = true;
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (PlayerController)
-	{
-		PlayerController->Possess(this);
-	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Tick(float delta_seconds)
@@ -64,82 +63,106 @@ void ARobot_Orb::Tick(float delta_seconds)
 	Set_Turn_Head_For_Camera();
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Forward_Triggered(bool is_button_pressed)
+void ARobot_Orb::Move_Forward_Triggered(const FInputActionValue& value)
 {
-	Is_Moving_Forward = is_button_pressed;
+	Is_Moving_Forward = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(true, false);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Forward_Completed(bool is_button_pressed)
+void ARobot_Orb::Move_Forward_Completed(const FInputActionValue& value)
 {
-	Is_Moving_Forward = is_button_pressed;
+	Is_Moving_Forward = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_Button_Completed(false, Is_Moving_Backward, Target_Angle_Of_Head_Lean_Forward_Backward);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Backward_Triggered(bool is_button_pressed)
+void ARobot_Orb::Move_Backward_Triggered(const FInputActionValue& value)
 {
-	Is_Moving_Backward = is_button_pressed;
+	Is_Moving_Backward = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(true, true);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Backward_Completed(bool is_button_pressed)
+void ARobot_Orb::Move_Backward_Completed(const FInputActionValue& value)
 {
-	Is_Moving_Backward = is_button_pressed;
+	Is_Moving_Backward = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_Button_Completed(true, Is_Moving_Forward, Target_Angle_Of_Head_Lean_Forward_Backward);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Left_Triggered(bool is_button_pressed)
+void ARobot_Orb::Move_Left_Triggered(const FInputActionValue& value)
 {
-	Is_Moving_Left = is_button_pressed;
+	Is_Moving_Left = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(false, true);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Left_Completed(bool is_button_pressed)
+void ARobot_Orb::Move_Left_Completed(const FInputActionValue& value)
 {
-	Is_Moving_Left = is_button_pressed;
+	Is_Moving_Left = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_Button_Completed(true, Is_Moving_Right, Target_Angle_Of_Head_Lean_Left_Right);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Right_Triggered(bool is_button_pressed)
+void ARobot_Orb::Move_Right_Triggered(const FInputActionValue& value)
 {
-	Is_Moving_Right = is_button_pressed;
+	Is_Moving_Right = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(false, false);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Move_Right_Completed(bool is_button_pressed)
+void ARobot_Orb::Move_Right_Completed(const FInputActionValue& value)
 {
-	Is_Moving_Right = is_button_pressed;
+	Is_Moving_Right = value.Get<bool>();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Move_Button_Completed(false, Is_Moving_Left, Target_Angle_Of_Head_Lean_Left_Right);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Jump()
+void ARobot_Orb::Jump(const FInputActionValue& value)
 {
 	if(Check_Jump() )
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+
 		Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse) );
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Zoom_Increase()
+void ARobot_Orb::Zoom_Increase(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+
 	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 100.0f, 550.0f, 1350.0f);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Zoom_Decrease()
+void ARobot_Orb::Zoom_Decrease(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+
 	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 550.0f, 1350.0f);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Orb::Turn_On_Off_Fleshlight()
+void ARobot_Orb::Turn_On_Off_Fleshlight(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+
 	Is_Flashlight_Turn_On = !Is_Flashlight_Turn_On;
 
 	if(Is_Flashlight_Turn_On)
@@ -152,6 +175,10 @@ void ARobot_Orb::Turn_On_Off_Fleshlight()
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Interact(const FInputActionValue& value)
+{
+}
+//------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Turn_Camera()
 {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
@@ -161,11 +188,20 @@ void ARobot_Orb::Turn_Camera()
 		float DeltaMouseY;
 		PlayerController->GetInputMouseDelta(DeltaMouseX, DeltaMouseY);
 
-		if (DeltaMouseX != 0.0f)
+		if (DeltaMouseX != 0.0f || DeltaMouseY != 0.0f)
 		{
-			FRotator DeltaRotationX(0.0f, DeltaMouseX, 0.0f);
 
-			Camera_Spring_Arm->AddRelativeRotation(DeltaRotationX);
+			float MinPitch = -50.0f;
+			float MaxPitch = 30.0f;
+
+			FRotator CurrentRotation = Camera_Spring_Arm->GetRelativeRotation();
+
+			float NewPitch = CurrentRotation.Pitch + DeltaMouseY;
+
+			NewPitch = FMath::Clamp(NewPitch, MinPitch, MaxPitch);
+
+			FRotator NewRotation(NewPitch, CurrentRotation.Yaw + DeltaMouseX, 0.0f);
+			Camera_Spring_Arm->SetRelativeRotation(NewRotation);
 		}
 	}
 }
@@ -278,5 +314,33 @@ bool ARobot_Orb::Check_Jump()
 	query_params.AddIgnoredActor(this);
 
 	return GetWorld()->LineTraceSingleByChannel(hit_result, start_loc, end_loc, ECC_PhysicsBody, query_params);
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::SetupPlayerInputComponent(UInputComponent* player_input_component)
+{
+	Super::SetupPlayerInputComponent(player_input_component);
+
+	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(player_input_component))
+	{
+		enhanced_input_component->BindAction(Move_Forward_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Forward_Triggered);
+		enhanced_input_component->BindAction(Move_Forward_Action, ETriggerEvent::Completed, this, &ThisClass::Move_Forward_Completed);
+
+		enhanced_input_component->BindAction(Move_Backward_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Backward_Triggered);
+		enhanced_input_component->BindAction(Move_Backward_Action, ETriggerEvent::Completed, this, &ThisClass::Move_Backward_Completed);
+
+		enhanced_input_component->BindAction(Move_Left_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Left_Triggered);
+		enhanced_input_component->BindAction(Move_Left_Action, ETriggerEvent::Completed, this, &ThisClass::Move_Left_Completed);
+
+		enhanced_input_component->BindAction(Move_Right_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Right_Triggered);
+		enhanced_input_component->BindAction(Move_Right_Action, ETriggerEvent::Completed, this, &ThisClass::Move_Right_Completed);
+
+		enhanced_input_component->BindAction(Jump_Action, ETriggerEvent::Started, this, &ThisClass::Jump);
+
+		enhanced_input_component->BindAction(Zoom_Decrease_Action, ETriggerEvent::Started, this, &ThisClass::Zoom_Decrease);
+		enhanced_input_component->BindAction(Zoom_Increase_Action, ETriggerEvent::Started, this, &ThisClass::Zoom_Increase);
+
+		enhanced_input_component->BindAction(Turn_On_Off_Fleshlight_Action, ETriggerEvent::Started, this, &ThisClass::Turn_On_Off_Fleshlight);
+		enhanced_input_component->BindAction(Interact_Action, ETriggerEvent::Started, this, &ThisClass::Interact);
+	}
 }
 //------------------------------------------------------------------------------------------------------------

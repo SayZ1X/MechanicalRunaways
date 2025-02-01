@@ -1,17 +1,22 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "Characters/PlayerCharacters/Player_Character/Player_Character.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "InputActionValue.h"
+#include "GameFramework/PlayerController.h"
 #include "Robot_Orb.generated.h"
+
+class UInputMappingContext;
+class UInputAction;
 
 //------------------------------------------------------------------------------------------------------------
 UCLASS(Abstract)
-class MECHANICALRUNAWAYS_API ARobot_Orb : public APawn
+class MECHANICALRUNAWAYS_API ARobot_Orb : public APlayer_Character
 {
 	GENERATED_BODY()
 
@@ -22,18 +27,19 @@ public:
 	virtual void Tick(float delta_seconds) override;
 
 	//-- Input Functions --
-	void Move_Forward_Triggered(bool is_button_pressed);
-	void Move_Forward_Completed(bool is_button_pressed);
-	void Move_Backward_Triggered(bool is_button_pressed);
-	void Move_Backward_Completed(bool is_button_pressed);
-	void Move_Left_Triggered(bool is_button_pressed);
-	void Move_Left_Completed(bool is_button_pressed);
-	void Move_Right_Triggered(bool is_button_pressed);
-	void Move_Right_Completed(bool is_button_pressed);
-	void Jump();
-	void Zoom_Increase();
-	void Zoom_Decrease();
-	void Turn_On_Off_Fleshlight();
+	void Move_Forward_Triggered(const FInputActionValue& value);
+	void Move_Forward_Completed(const FInputActionValue& value);
+	void Move_Backward_Triggered(const FInputActionValue& value);
+	void Move_Backward_Completed(const FInputActionValue& value);
+	void Move_Left_Triggered(const FInputActionValue& value);
+	void Move_Left_Completed(const FInputActionValue& value);
+	void Move_Right_Triggered(const FInputActionValue& value);
+	void Move_Right_Completed(const FInputActionValue& value);
+	void Jump(const FInputActionValue& value);
+	void Zoom_Increase(const FInputActionValue& value);
+	void Zoom_Decrease(const FInputActionValue& value);
+	void Turn_On_Off_Fleshlight(const FInputActionValue& value);
+	void Interact(const FInputActionValue& value);
 	//-- Input Functions --
 
 protected:
@@ -71,6 +77,38 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Backward;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Left;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool Is_Moving_Right;
+
+	virtual void SetupPlayerInputComponent(UInputComponent* player_input_component) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputMappingContext* Input_Mapping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Move_Forward_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Move_Backward_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Move_Left_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Move_Right_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Jump_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Zoom_Increase_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Zoom_Decrease_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Turn_On_Off_Fleshlight_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Interact_Action;
 
 };
 //------------------------------------------------------------------------------------------------------------

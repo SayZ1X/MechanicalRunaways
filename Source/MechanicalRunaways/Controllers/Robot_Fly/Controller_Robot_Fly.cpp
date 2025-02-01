@@ -138,7 +138,7 @@ void AController_Robot_Fly::Zoom_Increase(const FInputActionValue& value)
 {
    if (ARobot_Fly* player_pawn = Cast<ARobot_Fly>(GetPawn()))
    {
-      player_pawn->Zoom_Increase();
+      player_pawn->Zoom_Increase(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void AController_Robot_Fly::Zoom_Decrease(const FInputActionValue& value)
 {
    if (ARobot_Fly* player_pawn = Cast<ARobot_Fly>(GetPawn()))
    {
-      player_pawn->Zoom_Decrease();
+      player_pawn->Zoom_Decrease(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ void AController_Robot_Fly::Turn_On_Off_Fleshlight(const FInputActionValue& valu
 {
    if (ARobot_Fly* player_pawn = Cast<ARobot_Fly>(GetPawn()))
    {
-      player_pawn->Turn_On_Off_Fleshlight();
+      player_pawn->Turn_On_Off_Fleshlight(value.Get<bool>());
    }
 }
 //------------------------------------------------------------------------------------------------------------
