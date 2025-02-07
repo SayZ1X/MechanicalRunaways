@@ -20,7 +20,7 @@ ARobot_Fly::ARobot_Fly()
 	Robot_Mesh->SetupAttachment(Capsule_Component);
 	Camera_Spring_Arm->SetupAttachment(Robot_Mesh);
 	Camera->SetupAttachment(Camera_Spring_Arm);
-	Flashlight_Component->SetupAttachment(Robot_Mesh);
+	Flashlight_Component->SetupAttachment(Robot_Mesh, TEXT("Flashlight_Socket"));
 
 	Is_Flashlight_Turn_On = false;
 	Flashlight_Component->SetVisibility(Is_Flashlight_Turn_On);
@@ -282,8 +282,8 @@ void ARobot_Fly::Turn_Camera()
 
 			Camera_Spring_Arm->SetRelativeRotation(new_rotation);
 
-			//if (GetNetMode() == NM_Client)
-			Server_Turn_Camera(new_rotation);
+			if (GetNetMode() == NM_Client)
+				Server_Turn_Camera(new_rotation);
 		}
 	}
 }
@@ -432,7 +432,6 @@ void ARobot_Fly::Change_Body_Angle_Lean(float delta_seconds)
 	Interp_Angle_Of_Body_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Forward_Backward, Target_Angle_Of_Body_Lean_Forward_Backward, delta_seconds, Body_Lean_Speed);
 	Interp_Angle_Of_Body_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Left_Right, Target_Angle_Of_Body_Lean_Left_Right, delta_seconds, Body_Lean_Speed);
 }
-
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
