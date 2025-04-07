@@ -4,6 +4,7 @@
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 
 // ARobot_Fly
 //------------------------------------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ void ARobot_Fly::Tick(float delta_seconds)
 	Change_Camera_Distance(delta_seconds);
 	Change_Body_Angle_Lean(delta_seconds);
 	Rotate_Blades(delta_seconds);
+	Update_Actor_Position_MPC_Value();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Forward_Started(const FInputActionValue& value)
@@ -383,6 +385,18 @@ bool ARobot_Fly::Check_Can_Move(const FVector& direction)
 	);
 
 	return bHit?false:true;
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Fly::Update_Actor_Position_MPC_Value()
+{
+	if (!MPC_Robot_Fly) return;
+
+	UMaterialParameterCollectionInstance* MPC_Instance = GetWorld()->GetParameterCollectionInstance(MPC_Robot_Fly);
+	if (MPC_Instance)
+	{
+		FVector Actor_Pos = GetActorLocation();
+		MPC_Instance->SetVectorParameterValue(FName("Player_Pos"), FLinearColor(Actor_Pos) );
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Change_State_If_Moving()

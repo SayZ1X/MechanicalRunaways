@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerController.h"
+#include "Materials/MaterialParameterCollection.h"
 #include "Robot_Orb.generated.h"
 
 class UInputMappingContext;
@@ -59,6 +60,7 @@ protected:
 	void Set_Turn_Head_For_Camera();
 	void Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis);
 	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, bool is_forward_backward);//float& changed_axis);
+	void Update_Actor_Position_MPC_Value();
 
 	UFUNCTION(BlueprintCallable) bool Check_Jump();
 	UFUNCTION(BlueprintCallable) bool Check_Is_Moving();
@@ -102,6 +104,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USpringArmComponent* Camera_Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USpotLightComponent* Head_Flashlight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category="MPC") UMaterialParameterCollection* MPC_Robot_Orb;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool Is_Flashlight_Turn_On;
 

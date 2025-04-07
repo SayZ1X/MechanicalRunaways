@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
+#include "Materials/MaterialParameterCollection.h"
 #include "Robot_Fly.generated.h"
 
 class UInputMappingContext;
@@ -62,6 +63,7 @@ protected:
 	void Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis);
 	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, float& changed_axis);
 	bool Check_Can_Move(const FVector& direction);
+	void Update_Actor_Position_MPC_Value();
 
 	UFUNCTION(BlueprintCallable) void Change_State_If_Moving();
 	UFUNCTION(BlueprintCallable) bool Get_Is_Moving();
@@ -107,6 +109,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USpotLightComponent* Flashlight_Component;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "MPC") UMaterialParameterCollection* MPC_Robot_Fly;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool Is_Flashlight_Turn_On;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "250.0", ClampMax = "850.0")) float Camera_Distance;

@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 
 // ABasePlayer
 //------------------------------------------------------------------------------------------------------------
@@ -67,6 +68,7 @@ void ARobot_Orb::Tick(float delta_seconds)
 
 	Turn_Camera();
 	Set_Turn_Head_For_Camera();
+	Update_Actor_Position_MPC_Value();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -400,6 +402,18 @@ void ARobot_Orb::Move_Button_Completed(bool negative_axis_completed, bool opposi
 
 	if(GetNetMode() == NM_Client)
 		Server_Move_Button_Completed(is_forward_backward, is_forward_backward?Target_Angle_Of_Head_Lean_Forward_Backward:Target_Angle_Of_Head_Lean_Left_Right);
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Update_Actor_Position_MPC_Value()
+{
+	if (!MPC_Robot_Orb) return;
+
+	UMaterialParameterCollectionInstance *MPC_Instance = GetWorld()->GetParameterCollectionInstance(MPC_Robot_Orb);
+	if(MPC_Instance)
+	{
+		FVector Actor_Pos = GetActorLocation();
+		MPC_Instance->SetVectorParameterValue(FName("Player_Pos"), FLinearColor(Actor_Pos) );
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 bool ARobot_Orb::Check_Jump()
