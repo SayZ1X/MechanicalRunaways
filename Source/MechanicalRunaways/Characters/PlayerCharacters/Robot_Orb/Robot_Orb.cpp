@@ -12,9 +12,13 @@
 //------------------------------------------------------------------------------------------------------------
 ARobot_Orb::ARobot_Orb()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	Body_Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Body_Mesh");
-	Head_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Head_Spring_Arm");
 	Head_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Head_Mesh");
+	Head_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Head_Spring_Arm");
 	Camera_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Camera_Spring_Arm");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Head_Flashlight = CreateDefaultSubobject<USpotLightComponent>("Head_Flashlight");
@@ -28,29 +32,26 @@ ARobot_Orb::ARobot_Orb()
 
 	Body_Mesh->SetSimulatePhysics(true);
 
-	Camera_Distance = 1050.0f;
+	Camera_Distance = 700.0f;
 	Target_Camera_Distance = Camera_Distance;
 	Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 
 	Is_Flashlight_Turn_On = false;
 	Head_Flashlight->SetVisibility(Is_Flashlight_Turn_On);
 
-	Movement_Force = 100000.0f;
+	Movement_Speed = 100000.0f;
+	Max_Movement_Speed = 500.0f;
 	Moving_Damping = 0.01f;
 	Stopping_Damping = 4.0f;
 	Jump_Impulse = 100000.0f;
 	Head_Lean_Speed = 7.0f;
 	Angle_Of_Head_Lean = 20.0f;
-
-	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;
-	SetReplicateMovement(true);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Tick(float delta_seconds)
@@ -66,6 +67,21 @@ void ARobot_Orb::Tick(float delta_seconds)
 		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 	}
 
+	Move_For_Axis_Triggered(true, false);
+
+	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("Speed_x: %f, Speed_y: % f, Speed_z: %f,"), Body_Mesh->GetPhysicsLinearVelocity().X, Body_Mesh->GetPhysicsLinearVelocity().Y, Body_Mesh->GetPhysicsLinearVelocity().Z));
+	if (Body_Mesh)
+	{
+		FVector Velocity = Body_Mesh->GetPhysicsLinearVelocity();
+		float CurrentSpeed = Velocity.Size();
+
+		if (CurrentSpeed > Max_Movement_Speed)
+		{
+			FVector ClampedVelocity = Velocity.GetSafeNormal() * Max_Movement_Speed;
+			Body_Mesh->SetPhysicsLinearVelocity(ClampedVelocity);
+		}
+	}
+
 	Turn_Camera();
 	Set_Turn_Head_For_Camera();
 	Update_Actor_Position_MPC_Value();
@@ -78,7 +94,6 @@ void ARobot_Orb::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 	// Add properties to replicated for the derived class
 	DOREPLIFETIME(ARobot_Orb, Body_Mesh);
-	DOREPLIFETIME(ARobot_Orb, Head_Mesh);
 	DOREPLIFETIME(ARobot_Orb, Camera_Spring_Arm);
 	DOREPLIFETIME(ARobot_Orb, Camera);
 	DOREPLIFETIME(ARobot_Orb, Head_Flashlight);
@@ -88,7 +103,7 @@ void ARobot_Orb::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Forward_Started(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Is_Moving_Forward = value.Get<bool>();
 
@@ -100,7 +115,7 @@ void ARobot_Orb::Move_Forward_Started(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Forward_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(true, false);
 }
@@ -109,7 +124,7 @@ void ARobot_Orb::Move_Forward_Completed(const FInputActionValue& value)
 {
 	Is_Moving_Forward = value.Get<bool>();
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_Button_Completed(false, Is_Moving_Backward, true);
 
@@ -124,7 +139,7 @@ void ARobot_Orb::Move_Forward_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Backward_Started(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Is_Moving_Backward = value.Get<bool>();
 
@@ -136,7 +151,7 @@ void ARobot_Orb::Move_Backward_Started(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Backward_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(true, true);
 }
@@ -145,7 +160,7 @@ void ARobot_Orb::Move_Backward_Completed(const FInputActionValue& value)
 {
 	Is_Moving_Backward = value.Get<bool>();
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_Button_Completed(true, Is_Moving_Forward, true);
 
@@ -160,7 +175,7 @@ void ARobot_Orb::Move_Backward_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Left_Started(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Is_Moving_Left = value.Get<bool>();
 
@@ -172,7 +187,7 @@ void ARobot_Orb::Move_Left_Started(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Left_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(false, true);
 }
@@ -181,7 +196,7 @@ void ARobot_Orb::Move_Left_Completed(const FInputActionValue& value)
 {
 	Is_Moving_Left = value.Get<bool>();
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_Button_Completed(true, Is_Moving_Right, false);
 
@@ -196,7 +211,7 @@ void ARobot_Orb::Move_Left_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Right_Started(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Is_Moving_Right = value.Get<bool>();
 
@@ -208,7 +223,7 @@ void ARobot_Orb::Move_Right_Started(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Move_Right_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_For_Axis_Triggered(false, false);
 }
@@ -217,7 +232,7 @@ void ARobot_Orb::Move_Right_Completed(const FInputActionValue& value)
 {
 	Is_Moving_Right = value.Get<bool>();
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Move_Button_Completed(false, Is_Moving_Left, false);
 
@@ -234,38 +249,43 @@ void ARobot_Orb::Jump(const FInputActionValue& value)
 {
 	if(Check_Jump() )
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+		UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
-		if(GetNetMode() == NM_ListenServer)
-			Body_Mesh->SetLinearDamping(Moving_Damping);
-			Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse) );
-
-		if (GetNetMode() == NM_Client)
+		if (GetLocalRole() < ROLE_Authority)
+		{
 			Server_Jump();
+			return;
+		}
+
+		Body_Mesh->SetLinearDamping(Moving_Damping);
+		Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse) );
 	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Zoom_Increase(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
-	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 100.0f, 550.0f, 1350.0f);
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 100.0f, 600.0f, 800.0f);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Zoom_Decrease(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
-	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 550.0f, 1350.0f);
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 600.0f, 800.0f);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Turn_On_Off_Fleshlight(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Is_Flashlight_Turn_On = !Is_Flashlight_Turn_On;
-
-	Server_Turn_On_Off_Fleshlight(Is_Flashlight_Turn_On);
+	
+	if (GetLocalRole() < ROLE_Authority)
+		Server_Turn_On_Off_Fleshlight(Is_Flashlight_Turn_On);
+	else
+		Head_Flashlight->SetVisibility(Is_Flashlight_Turn_On);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Interact(const FInputActionValue& value)
@@ -374,12 +394,16 @@ void ARobot_Orb::Move_For_Axis_Triggered(bool is_forward_backward, bool is_negat
 
 	FVector completed_vector = FVector(camera_vector.X, camera_vector.Y, body_vector.Z);
 
-	Body_Mesh->AddForce(completed_vector * (is_negative_axis?-Movement_Force:Movement_Force) );
-
-	if (GetNetMode() == NM_Client)
+	
+	
+	if (GetLocalRole() < ROLE_Authority)
 	{
-		completed_vector *= is_negative_axis ? -Movement_Force : Movement_Force;
+		completed_vector *= is_negative_axis ? -Movement_Speed : Movement_Speed;
 		Server_Move_For_Axis_Triggered(completed_vector, Target_Angle_Of_Head_Lean_Forward_Backward, Target_Angle_Of_Head_Lean_Left_Right);
+	}
+	else
+	{
+		Body_Mesh->AddForce(completed_vector * (is_negative_axis ? -Movement_Speed : Movement_Speed));
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -445,7 +469,7 @@ void ARobot_Orb::Server_Move_For_Axis_Triggered_Implementation(const FVector& mo
 	Target_Angle_Of_Head_Lean_Forward_Backward = target_angle_of_head_lean_forward_backward;
 	Target_Angle_Of_Head_Lean_Left_Right = target_angle_of_head_lean_left_right;
 
-	Body_Mesh->AddForce(movement_vector * GetWorld()->GetDeltaSeconds());
+	Body_Mesh->AddForce(movement_vector);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ARobot_Orb::Server_Move_For_Axis_Triggered_Validate(const FVector& movement_vector, const float& target_angle_of_head_lean_forward_backward, const float& target_angle_of_head_lean_left_right)
@@ -482,14 +506,13 @@ bool ARobot_Orb::Server_Change_Linear_Damping_Validate(const float& damping)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Server_Jump_Implementation()
 {
-	if (Check_Jump() )
-		Body_Mesh->SetLinearDamping(Moving_Damping);
-		Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse));
+	Body_Mesh->SetLinearDamping(Moving_Damping);
+	Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse));
 }
 //------------------------------------------------------------------------------------------------------------
 bool ARobot_Orb::Server_Jump_Validate()
 {
-	return true;
+	return Check_Jump();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Server_Turn_Camera_Implementation(FRotator new_rotation)

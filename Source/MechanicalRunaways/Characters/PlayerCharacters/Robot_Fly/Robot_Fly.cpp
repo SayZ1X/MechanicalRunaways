@@ -1,48 +1,51 @@
 #include "Robot_Fly.h"
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/Engine.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // ARobot_Fly
 //------------------------------------------------------------------------------------------------------------
 ARobot_Fly::ARobot_Fly()
 {
-	Robot_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Robot_Mesh");
-	Capsule_Component = CreateDefaultSubobject<UCapsuleComponent>("Capsule_Component");
+	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
 	Camera_Spring_Arm = CreateDefaultSubobject<USpringArmComponent>("Camera_Spring_Arm");
+	Camera_Spring_Arm->SetIsReplicated(true);
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Flashlight_Component = CreateDefaultSubobject<USpotLightComponent>("Flashlight_Component");
+	Flashlight_Component->SetIsReplicated(true);
 
-	RootComponent = Capsule_Component;
-	SetRootComponent(Capsule_Component);
-	Robot_Mesh->SetupAttachment(Capsule_Component);
-	Camera_Spring_Arm->SetupAttachment(Robot_Mesh);
+	SetRootComponent(GetCapsuleComponent());
+	GetMesh()->SetupAttachment(GetCapsuleComponent());
+	Camera_Spring_Arm->SetupAttachment(GetMesh());
 	Camera->SetupAttachment(Camera_Spring_Arm);
-	Flashlight_Component->SetupAttachment(Robot_Mesh, TEXT("Flashlight_Socket"));
+	Flashlight_Component->SetupAttachment(GetMesh(), TEXT("Flashlight_Socket"));
 
 	Is_Flashlight_Turn_On = false;
 	Flashlight_Component->SetVisibility(Is_Flashlight_Turn_On);
 
-	Movement_Speed = 600.0f;
-
-	Camera_Distance = 550.0f;
+	Camera_Distance = 700.0f;
 	Target_Camera_Distance = Camera_Distance;
 	Camera_Spring_Arm->TargetArmLength = Camera_Distance;
+
+	Movement_Speed = 500.0f;
+	GetCharacterMovement()->DefaultLandMovementMode = EMovementMode::MOVE_Flying;
+	GetCharacterMovement()->DefaultWaterMovementMode = EMovementMode::MOVE_Flying;
+	GetCharacterMovement()->MaxFlySpeed = 500.0f;
+	GetCharacterMovement()->BrakingDecelerationFlying = 250.0f;
 
 	Body_Lean_Speed = 4.0f;
 	Body_Rotation_Angle = 15.0f;
 
 	Blades_Current_Rotation = 0.0f;
 	Blades_Rotation_Speed = 1800.0f;
-
-	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;
-	SetReplicateMovement(true);
-
-	Capsule_Component->SetIsReplicated(true);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::BeginPlay()
@@ -55,6 +58,8 @@ void ARobot_Fly::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
+	Move_For_Axis_Triggered(true, false);
+
 	Turn_Camera();
 	Change_Camera_Distance(delta_seconds);
 	Change_Body_Angle_Lean(delta_seconds);
@@ -62,27 +67,38 @@ void ARobot_Fly::Tick(float delta_seconds)
 	Update_Actor_Position_MPC_Value();
 }
 //------------------------------------------------------------------------------------------------------------
+void ARobot_Fly::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Add properties to replicated for the derived class
+	DOREPLIFETIME(ARobot_Fly, Camera_Spring_Arm);
+	DOREPLIFETIME(ARobot_Fly, Flashlight_Component);
+	DOREPLIFETIME(ARobot_Fly, Body_Rotation_Angle);
+	DOREPLIFETIME(ARobot_Fly, Target_Angle_Of_Body_Lean_Forward_Backward);
+	DOREPLIFETIME(ARobot_Fly, Target_Angle_Of_Body_Lean_Left_Right);
+
+	DOREPLIFETIME(ARobot_Fly, Is_Moving);
+}
+//------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Forward_Started(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Forward = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Forward_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
-
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Move_For_Axis_Triggered(true, false);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Forward_Completed(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Forward = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 	Move_Button_Completed(false, Is_Moving_Backward, Target_Angle_Of_Body_Lean_Forward_Backward);
@@ -90,25 +106,22 @@ void ARobot_Fly::Move_Forward_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Backward_Started(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Backward = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Backward_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
-
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Move_For_Axis_Triggered(true, true);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Backward_Completed(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Backward = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 	Move_Button_Completed(true, Is_Moving_Forward, Target_Angle_Of_Body_Lean_Forward_Backward);
@@ -116,25 +129,22 @@ void ARobot_Fly::Move_Backward_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Left_Started(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Left = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Left_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
-
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Move_For_Axis_Triggered(false, true);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Left_Completed(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Left = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 	Move_Button_Completed(true, Is_Moving_Right, Target_Angle_Of_Body_Lean_Left_Right);
@@ -142,25 +152,22 @@ void ARobot_Fly::Move_Left_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Right_Started(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Right = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Right_Triggered(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
-
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Move_For_Axis_Triggered(false, false);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Right_Completed(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	Is_Moving_Right = value.Get<bool>();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
 
 	Change_State_If_Moving();
 	Move_Button_Completed(false, Is_Moving_Left, Target_Angle_Of_Body_Lean_Left_Right);
@@ -168,47 +175,44 @@ void ARobot_Fly::Move_Right_Completed(const FInputActionValue& value)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Up_Triggered(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	FVector direction = GetActorUpVector() * Movement_Speed * GetWorld()->DeltaTimeSeconds * 0.5f;
 	
-	if(Check_Can_Move(direction) )
-	{
-		RootComponent->AddRelativeLocation(direction);
-		Server_Move_Up(direction);
-	}
+	AddMovementInput(direction);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Move_Down_Triggered(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 	FVector direction = GetActorUpVector() * Movement_Speed * GetWorld()->DeltaTimeSeconds * 0.5f * -1;
 	
-	if (Check_Can_Move(direction))
-	{
-		RootComponent->AddRelativeLocation(direction);
-		Server_Move_Down(direction);
-	}
+	AddMovementInput(direction);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Zoom_Increase(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
-	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 100.0f, 250.0f, 850.0f);
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 100.0f, 600.0f, 800.0f);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Zoom_Decrease(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
-	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 250.0f, 850.0f);
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 600.0f, 800.0f);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Turn_On_Off_Fleshlight(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), __FUNCTION__)
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
 
 	Is_Flashlight_Turn_On = !Is_Flashlight_Turn_On;
 
-	Server_Turn_On_Off_Fleshlight(Is_Flashlight_Turn_On);
+	Flashlight_Component->SetVisibility(Is_Flashlight_Turn_On);
+
+	if (GetLocalRole() < ROLE_Authority)
+		Server_Turn_On_Off_Fleshlight(Is_Flashlight_Turn_On);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Interact(const FInputActionValue& value)
@@ -284,7 +288,7 @@ void ARobot_Fly::Turn_Camera()
 
 			Camera_Spring_Arm->SetRelativeRotation(new_rotation);
 
-			if (GetNetMode() == NM_Client)
+			if (GetLocalRole() < ROLE_Authority)
 				Server_Turn_Camera(new_rotation);
 		}
 	}
@@ -332,16 +336,15 @@ void ARobot_Fly::Move_For_Axis_Triggered(bool is_forward_backward, bool is_negat
 		* Movement_Speed
 		* GetWorld()->DeltaTimeSeconds
 		* (is_negative_axis ? -1 : 1);
-	direction.Z = 0.0f;
 
-	if(Check_Can_Move(direction) )
+	if (GetLocalRole() < ROLE_Authority)
 	{
-		RootComponent->AddRelativeLocation(direction);
-
-		if (GetNetMode() == NM_Client)
-		{
-			Server_Move_For_Axis_Triggered(direction, Target_Angle_Of_Body_Lean_Forward_Backward, Target_Angle_Of_Body_Lean_Left_Right);
-		} 
+		AddMovementInput(direction);
+		Server_Move_For_Axis_Triggered(Target_Angle_Of_Body_Lean_Forward_Backward, Target_Angle_Of_Body_Lean_Left_Right);
+	}
+	else
+	{
+		AddMovementInput(direction);
 	}
 }
 
@@ -362,29 +365,6 @@ void ARobot_Fly::Move_Button_Completed(bool negative_axis_completed, bool opposi
 		else
 			changed_axis = 0;
 	}
-}
-//------------------------------------------------------------------------------------------------------------
-bool ARobot_Fly::Check_Can_Move(const FVector& direction)
-{
-	FVector world_direction = GetActorRotation().RotateVector(direction);
-	FVector start = /*RootComponent->GetRelativeLocation()*/GetActorLocation();
-	FVector end = start + world_direction * 100.0f;
-
-	FHitResult hit_result;
-
-	FCollisionQueryParams trace_params(FName(TEXT("TraceForward")), true, this);
-	trace_params.bTraceComplex = true; // Трассировка сложной геометрии
-	trace_params.AddIgnoredActor(this); // Игнорировать себя
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		hit_result,              // Результат столкновения
-		start,                  // Начало перемещения
-		end,                    // Конец перемещения
-		ECC_Visibility,         // Канал столкновений
-		trace_params             // Параметры трассировки
-	);
-
-	return bHit?false:true;
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Update_Actor_Position_MPC_Value()
@@ -413,7 +393,8 @@ void ARobot_Fly::Change_State_If_Moving()
 		Is_Moving = false;
 	}
 
-	Server_Change_State_If_Moving(Is_Moving);
+	if (GetLocalRole() < ROLE_Authority)
+		Server_Change_State_If_Moving(Is_Moving);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ARobot_Fly::Get_Is_Moving()
@@ -435,7 +416,6 @@ void ARobot_Fly::Change_Camera_Distance(float delta_seconds)
 {
 	if (Camera_Distance != Target_Camera_Distance)
 	{
-
 		Camera_Distance = FMath::FInterpTo(Camera_Distance, Target_Camera_Distance, delta_seconds, 2.0f);
 		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 	}
@@ -447,52 +427,13 @@ void ARobot_Fly::Change_Body_Angle_Lean(float delta_seconds)
 	Interp_Angle_Of_Body_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Body_Lean_Left_Right, Target_Angle_Of_Body_Lean_Left_Right, delta_seconds, Body_Lean_Speed);
 }
 //------------------------------------------------------------------------------------------------------------
-void ARobot_Fly::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	// Call the Super
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// Add properties to replicated for the derived class
-	DOREPLIFETIME(ARobot_Fly, Robot_Mesh);
-	DOREPLIFETIME(ARobot_Fly, Capsule_Component);
-	DOREPLIFETIME(ARobot_Fly, Camera_Spring_Arm);
-	DOREPLIFETIME(ARobot_Fly, Flashlight_Component);
-	DOREPLIFETIME(ARobot_Fly, Body_Rotation_Angle);
-	DOREPLIFETIME(ARobot_Fly, Target_Angle_Of_Body_Lean_Forward_Backward);
-	DOREPLIFETIME(ARobot_Fly, Target_Angle_Of_Body_Lean_Left_Right);
-
-	DOREPLIFETIME(ARobot_Fly, Is_Moving);
-}
-//------------------------------------------------------------------------------------------------------------
-void ARobot_Fly::Server_Move_For_Axis_Triggered_Implementation(const FVector& direction, const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right)
+void ARobot_Fly::Server_Move_For_Axis_Triggered_Implementation(const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right)
 {
 	Target_Angle_Of_Body_Lean_Forward_Backward = target_angle_of_body_lean_forward_backward;
 	Target_Angle_Of_Body_Lean_Left_Right = target_angle_of_body_lean_left_right;
-
-	RootComponent->AddRelativeLocation(direction);
 }
 //------------------------------------------------------------------------------------------------------------
-bool ARobot_Fly::Server_Move_For_Axis_Triggered_Validate(const FVector& direction, const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right)
-{
-	return true;
-}
-//------------------------------------------------------------------------------------------------------------
-void ARobot_Fly::Server_Move_Up_Implementation(const FVector& direction)
-{
-	RootComponent->AddRelativeLocation(direction);
-}
-//------------------------------------------------------------------------------------------------------------
-bool ARobot_Fly::Server_Move_Up_Validate(const FVector& direction)
-{
-	return true;
-}
-//------------------------------------------------------------------------------------------------------------
-void ARobot_Fly::Server_Move_Down_Implementation(const FVector& direction)
-{
-	RootComponent->AddRelativeLocation(direction);
-}
-//------------------------------------------------------------------------------------------------------------
-bool ARobot_Fly::Server_Move_Down_Validate(const FVector& direction)
+bool ARobot_Fly::Server_Move_For_Axis_Triggered_Validate(const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right)
 {
 	return true;
 }

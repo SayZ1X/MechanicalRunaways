@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/PlayerCharacters/Player_Character/Player_Character.h"
+#include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SpotLightComponent.h"
@@ -18,7 +18,7 @@ class UInputAction;
 
 //------------------------------------------------------------------------------------------------------------
 UCLASS(Abstract)
-class MECHANICALRUNAWAYS_API ARobot_Orb : public APlayer_Character
+class MECHANICALRUNAWAYS_API ARobot_Orb : public APawn
 {
 	GENERATED_BODY()
 
@@ -59,7 +59,7 @@ protected:
 	void Turn_Camera();
 	void Set_Turn_Head_For_Camera();
 	void Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis);
-	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, bool is_forward_backward);//float& changed_axis);
+	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, bool is_forward_backward);
 	void Update_Actor_Position_MPC_Value();
 
 	UFUNCTION(BlueprintCallable) bool Check_Jump();
@@ -97,7 +97,6 @@ protected:
 	bool Server_Turn_On_Off_Fleshlight_Validate(bool is_flashlight_turn_on);
 	//-- Server Functions --
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Root;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) UStaticMeshComponent* Body_Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) USpringArmComponent* Head_Spring_Arm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USkeletalMeshComponent* Head_Mesh;
@@ -109,12 +108,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool Is_Flashlight_Turn_On;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Movement_Force;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Movement_Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Max_Movement_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Moving_Damping;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Stopping_Damping;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Jump_Impulse;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "550.0", ClampMax = "1350.0")) float Camera_Distance;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "550.0", ClampMax = "1350.0")) float Target_Camera_Distance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "600", ClampMax = "800")) float Camera_Distance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "600", ClampMax = "800")) float Target_Camera_Distance;
 
 	UPROPERTY(BlueprintReadOnly) float Head_Rotation_Angle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Head_Lean_Speed;
@@ -160,6 +160,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputAction* Interact_Action;
-
 };
 //------------------------------------------------------------------------------------------------------------

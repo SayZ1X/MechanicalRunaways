@@ -1,16 +1,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/PlayerCharacters/Player_Character/Player_Character.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "Components/SpotLightComponent.h"
+#include "Components/SKeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "InputActionValue.h"
-#include "Net/UnrealNetwork.h"
 #include "Materials/MaterialParameterCollection.h"
+#include "Net/UnrealNetwork.h"
 #include "Robot_Fly.generated.h"
 
 class UInputMappingContext;
@@ -18,7 +17,7 @@ class UInputAction;
 
 //------------------------------------------------------------------------------------------------------------
 UCLASS(Abstract)
-class MECHANICALRUNAWAYS_API ARobot_Fly : public APlayer_Character
+class MECHANICALRUNAWAYS_API ARobot_Fly : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -62,7 +61,6 @@ protected:
 	void Turn_Camera();
 	void Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis);
 	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, float& changed_axis);
-	bool Check_Can_Move(const FVector& direction);
 	void Update_Actor_Position_MPC_Value();
 
 	UFUNCTION(BlueprintCallable) void Change_State_If_Moving();
@@ -73,19 +71,9 @@ protected:
 
 	//-- Server Functions --
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
-	void Server_Move_For_Axis_Triggered(const FVector& direction, const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right);
-	void Server_Move_For_Axis_Triggered_Implementation(const FVector& direction, const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right);
-	bool Server_Move_For_Axis_Triggered_Validate(const FVector& direction, const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right);
-	
-	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
-	void Server_Move_Up(const FVector& direction);
-	void Server_Move_Up_Implementation(const FVector& direction);
-	bool Server_Move_Up_Validate(const FVector& direction);
-
-	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
-	void Server_Move_Down(const FVector& direction);
-	void Server_Move_Down_Implementation(const FVector& direction);
-	bool Server_Move_Down_Validate(const FVector& direction);
+	void Server_Move_For_Axis_Triggered(const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right);
+	void Server_Move_For_Axis_Triggered_Implementation(const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right);
+	bool Server_Move_For_Axis_Triggered_Validate(const float& target_angle_of_body_lean_forward_backward, const float& target_angle_of_body_lean_left_right);
 
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
 	void Server_Change_State_If_Moving(bool is_moving);
@@ -103,18 +91,16 @@ protected:
 	bool Server_Turn_On_Off_Fleshlight_Validate(bool is_flashlight_turn_on);
 	//-- Server Functions --
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USkeletalMeshComponent* Robot_Mesh;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) UCapsuleComponent* Capsule_Component;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USpringArmComponent* Camera_Spring_Arm;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated) USpotLightComponent* Flashlight_Component;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "MPC") UMaterialParameterCollection* MPC_Robot_Fly;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool Is_Flashlight_Turn_On;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "250.0", ClampMax = "850.0")) float Camera_Distance;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "250.0", ClampMax = "850.0")) float Target_Camera_Distance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "600.0", ClampMax = "800.0")) float Camera_Distance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "600.0", ClampMax = "800.0")) float Target_Camera_Distance;
 
 	UPROPERTY(BlueprintReadOnly, Replicated) float Body_Rotation_Angle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Body_Lean_Speed;
@@ -124,13 +110,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (ClampMin = "-15.0", ClampMax = "15.0"), Replicated) float Target_Angle_Of_Body_Lean_Left_Right;
 	UPROPERTY(BlueprintReadOnly, meta = (ClampMin = "-15.0", ClampMax = "15.0"), Replicated) float Interp_Angle_Of_Body_Lean_Left_Right;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) float Movement_Speed;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) bool Is_Moving;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) bool Is_Moving_Forward;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) bool Is_Moving_Backward;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) bool Is_Moving_Left;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) bool Is_Moving_Right;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Movement_Speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Blades_Current_Rotation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float Blades_Rotation_Speed; //RPM

@@ -10,6 +10,7 @@ APlayer_Character::APlayer_Character()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	bReplicates = true;
 }
 //------------------------------------------------------------------------------------------------------------
 void APlayer_Character::BeginPlay()

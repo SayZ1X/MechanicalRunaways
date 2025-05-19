@@ -1,9 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "Engine/Engine.h"
+#include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Player_Character.generated.h"
 
 class UInputMappingContext;
@@ -11,7 +13,7 @@ class UInputAction;
 
 //------------------------------------------------------------------------------------------------------------
 UCLASS()
-class MECHANICALRUNAWAYS_API APlayer_Character : public APawn
+class MECHANICALRUNAWAYS_API APlayer_Character : public ACharacter
 {
 	GENERATED_BODY()
 
