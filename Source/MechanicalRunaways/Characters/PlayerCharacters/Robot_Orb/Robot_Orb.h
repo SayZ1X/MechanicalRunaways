@@ -61,8 +61,11 @@ protected:
 	void Move_For_Axis_Triggered(bool is_forward_backward, bool is_negative_axis);
 	void Move_Button_Completed(bool negative_axis_completed, bool opposite_key_triggered, bool is_forward_backward);
 	void Update_Actor_Position_MPC_Value();
+	void Limit_Movement_Speed();
 
 	UFUNCTION(BlueprintCallable) bool Check_Jump();
+	UFUNCTION(BlueprintCallable) void Change_Camera_Distance(float delta_seconds);
+	UFUNCTION(BlueprintCallable) void Change_Body_Angle_Lean(float delta_seconds);
 	UFUNCTION(BlueprintCallable) bool Check_Is_Moving();
 
 	//-- Server Functions --

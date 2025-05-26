@@ -58,30 +58,9 @@ void ARobot_Orb::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
-	Interp_Angle_Of_Head_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Head_Lean_Forward_Backward, Target_Angle_Of_Head_Lean_Forward_Backward, delta_seconds, Head_Lean_Speed);
-	Interp_Angle_Of_Head_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Head_Lean_Left_Right, Target_Angle_Of_Head_Lean_Left_Right, delta_seconds, Head_Lean_Speed);
-
-	if (Camera_Distance != Target_Camera_Distance)
-	{
-		Camera_Distance = FMath::FInterpTo(Camera_Distance, Target_Camera_Distance, delta_seconds, 2.0f);
-		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
-	}
-
-	Move_For_Axis_Triggered(true, false);
-
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("Speed_x: %f, Speed_y: % f, Speed_z: %f,"), Body_Mesh->GetPhysicsLinearVelocity().X, Body_Mesh->GetPhysicsLinearVelocity().Y, Body_Mesh->GetPhysicsLinearVelocity().Z));
-	if (Body_Mesh)
-	{
-		FVector Velocity = Body_Mesh->GetPhysicsLinearVelocity();
-		float CurrentSpeed = Velocity.Size();
-
-		if (CurrentSpeed > Max_Movement_Speed)
-		{
-			FVector ClampedVelocity = Velocity.GetSafeNormal() * Max_Movement_Speed;
-			Body_Mesh->SetPhysicsLinearVelocity(ClampedVelocity);
-		}
-	}
-
+	Limit_Movement_Speed();
+	Change_Camera_Distance(delta_seconds);
+	Change_Body_Angle_Lean(delta_seconds);
 	Turn_Camera();
 	Set_Turn_Head_For_Camera();
 	Update_Actor_Position_MPC_Value();
@@ -440,6 +419,21 @@ void ARobot_Orb::Update_Actor_Position_MPC_Value()
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Limit_Movement_Speed()
+{
+	if (Body_Mesh)
+	{
+		FVector Velocity = Body_Mesh->GetPhysicsLinearVelocity();
+		float CurrentSpeed = Velocity.Size();
+
+		if (CurrentSpeed > Max_Movement_Speed)
+		{
+			FVector ClampedVelocity = Velocity.GetSafeNormal() * Max_Movement_Speed;
+			Body_Mesh->SetPhysicsLinearVelocity(ClampedVelocity);
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 bool ARobot_Orb::Check_Jump()
 {
 	FVector start_loc = Body_Mesh->GetComponentLocation();
@@ -454,6 +448,21 @@ bool ARobot_Orb::Check_Jump()
 	query_params.AddIgnoredActor(this);
 
 	return GetWorld()->LineTraceSingleByChannel(hit_result, start_loc, end_loc, ECC_PhysicsBody, query_params);
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Change_Camera_Distance(float delta_seconds)
+{
+	if (Camera_Distance != Target_Camera_Distance)
+	{
+		Camera_Distance = FMath::FInterpTo(Camera_Distance, Target_Camera_Distance, delta_seconds, 2.0f);
+		Camera_Spring_Arm->TargetArmLength = Camera_Distance;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Change_Body_Angle_Lean(float delta_seconds)
+{
+	Interp_Angle_Of_Head_Lean_Forward_Backward = FMath::FInterpTo(Interp_Angle_Of_Head_Lean_Forward_Backward, Target_Angle_Of_Head_Lean_Forward_Backward, delta_seconds, Head_Lean_Speed);
+	Interp_Angle_Of_Head_Lean_Left_Right = FMath::FInterpTo(Interp_Angle_Of_Head_Lean_Left_Right, Target_Angle_Of_Head_Lean_Left_Right, delta_seconds, Head_Lean_Speed);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ARobot_Orb::Check_Is_Moving()

@@ -58,8 +58,6 @@ void ARobot_Fly::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
-	Move_For_Axis_Triggered(true, false);
-
 	Turn_Camera();
 	Change_Camera_Distance(delta_seconds);
 	Change_Body_Angle_Lean(delta_seconds);
@@ -336,6 +334,7 @@ void ARobot_Fly::Move_For_Axis_Triggered(bool is_forward_backward, bool is_negat
 		* Movement_Speed
 		* GetWorld()->DeltaTimeSeconds
 		* (is_negative_axis ? -1 : 1);
+	direction.Z = 0.0f;
 
 	if (GetLocalRole() < ROLE_Authority)
 	{
