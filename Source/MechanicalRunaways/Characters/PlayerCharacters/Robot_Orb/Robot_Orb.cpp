@@ -302,11 +302,11 @@ void ARobot_Orb::Turn_Camera()
 			}
 
 			FRotator new_rotation(new_pitch, CurrentRotation.Yaw + delta_mouse_x, 0.0f);
-
-			Camera_Spring_Arm->SetRelativeRotation(new_rotation);
 				
-			if (GetNetMode() == NM_Client)
+			if (GetLocalRole() < ROLE_Authority)
 				Server_Turn_Camera(new_rotation);
+			else
+				Camera_Spring_Arm->SetRelativeRotation(new_rotation);
 		}
 	}
 }
