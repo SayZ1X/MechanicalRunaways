@@ -47,6 +47,9 @@ public:
 	void Move_Right_Triggered(const FInputActionValue& value);
 	void Move_Right_Completed(const FInputActionValue& value);
 
+	void Acceleration_Started(const FInputActionValue& value);
+	void Acceleration_Completed(const FInputActionValue& value);
+
 	void Jump(const FInputActionValue& value);
 
 	void Zoom_Increase(const FInputActionValue& value);
@@ -148,6 +151,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputAction* Move_Right_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Acceleration_Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputAction* Jump_Action;

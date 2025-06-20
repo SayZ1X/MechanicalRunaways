@@ -31,7 +31,7 @@ ARobot_Fly::ARobot_Fly()
 	Is_Flashlight_Turn_On = false;
 	Flashlight_Component->SetVisibility(Is_Flashlight_Turn_On);
 
-	Camera_Distance = 700.0f;
+	Camera_Distance = 600.0f;
 	Target_Camera_Distance = Camera_Distance;
 	Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 
@@ -187,6 +187,26 @@ void ARobot_Fly::Move_Down_Triggered(const FInputActionValue& value)
 	AddMovementInput(direction);
 }
 //------------------------------------------------------------------------------------------------------------
+void ARobot_Fly::Acceleration_Started(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
+
+	Movement_Speed = 700.0f;
+	GetCharacterMovement()->MaxFlySpeed = Movement_Speed;
+
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 100.0f, 600.0f, 800.0f);
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Fly::Acceleration_Completed(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
+
+	Movement_Speed = 500.0f;
+	GetCharacterMovement()->MaxFlySpeed = Movement_Speed;
+
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 100.0f, 600.0f, 800.0f);
+}
+//------------------------------------------------------------------------------------------------------------
 void ARobot_Fly::Zoom_Increase(const FInputActionValue& value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
@@ -241,6 +261,9 @@ void ARobot_Fly::SetupPlayerInputComponent(UInputComponent* player_input_compone
 
 		enhanced_input_component->BindAction(Move_Up_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Up_Triggered);
 		enhanced_input_component->BindAction(Move_Down_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Down_Triggered);
+
+		enhanced_input_component->BindAction(Acceleration_Action, ETriggerEvent::Started, this, &ThisClass::Acceleration_Started);
+		enhanced_input_component->BindAction(Acceleration_Action, ETriggerEvent::Completed, this, &ThisClass::Acceleration_Completed);
 
 
 		enhanced_input_component->BindAction(Zoom_Decrease_Action, ETriggerEvent::Started, this, &ThisClass::Zoom_Decrease);

@@ -8,7 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 
-// ABasePlayer
+// ARobot_Orb
 //------------------------------------------------------------------------------------------------------------
 ARobot_Orb::ARobot_Orb()
 {
@@ -32,7 +32,7 @@ ARobot_Orb::ARobot_Orb()
 
 	Body_Mesh->SetSimulatePhysics(true);
 
-	Camera_Distance = 700.0f;
+	Camera_Distance = 600.0f;
 	Target_Camera_Distance = Camera_Distance;
 	Camera_Spring_Arm->TargetArmLength = Camera_Distance;
 
@@ -41,7 +41,7 @@ ARobot_Orb::ARobot_Orb()
 
 	Movement_Speed = 100000.0f;
 	Max_Movement_Speed = 500.0f;
-	Moving_Damping = 0.01f;
+	Moving_Damping = 0.01f;//f;
 	Stopping_Damping = 4.0f;
 	Jump_Impulse = 100000.0f;
 	Head_Lean_Speed = 7.0f;
@@ -86,7 +86,7 @@ void ARobot_Orb::Move_Forward_Started(const FInputActionValue& value)
 
 	Is_Moving_Forward = value.Get<bool>();
 
-	Body_Mesh->SetLinearDamping(Moving_Damping);
+	//Body_Mesh->SetLinearDamping(Moving_Damping);
 
 	if (GetNetMode() == NM_Client)
 		Server_Change_Linear_Damping(Moving_Damping);
@@ -109,7 +109,7 @@ void ARobot_Orb::Move_Forward_Completed(const FInputActionValue& value)
 
 	if (!Check_Is_Moving())
 	{
-		Body_Mesh->SetLinearDamping(Stopping_Damping);
+		//Body_Mesh->SetLinearDamping(Stopping_Damping);
 
 		if (GetNetMode() == NM_Client)
 			Server_Change_Linear_Damping(Stopping_Damping);
@@ -122,7 +122,7 @@ void ARobot_Orb::Move_Backward_Started(const FInputActionValue& value)
 
 	Is_Moving_Backward = value.Get<bool>();
 
-	Body_Mesh->SetLinearDamping(Moving_Damping);
+	//Body_Mesh->SetLinearDamping(Moving_Damping);
 
 	if (GetNetMode() == NM_Client)
 		Server_Change_Linear_Damping(Moving_Damping);
@@ -145,7 +145,7 @@ void ARobot_Orb::Move_Backward_Completed(const FInputActionValue& value)
 
 	if (!Check_Is_Moving())
 	{
-		Body_Mesh->SetLinearDamping(Stopping_Damping);
+		//Body_Mesh->SetLinearDamping(Stopping_Damping);
 
 		if (GetNetMode() == NM_Client)
 			Server_Change_Linear_Damping(Stopping_Damping);
@@ -158,7 +158,7 @@ void ARobot_Orb::Move_Left_Started(const FInputActionValue& value)
 
 	Is_Moving_Left = value.Get<bool>();
 
-	Body_Mesh->SetLinearDamping(Moving_Damping);
+	//Body_Mesh->SetLinearDamping(Moving_Damping);
 
 	if (GetNetMode() == NM_Client)
 		Server_Change_Linear_Damping(Moving_Damping);
@@ -181,7 +181,7 @@ void ARobot_Orb::Move_Left_Completed(const FInputActionValue& value)
 
 	if (!Check_Is_Moving())
 	{
-		Body_Mesh->SetLinearDamping(Stopping_Damping);
+		//Body_Mesh->SetLinearDamping(Stopping_Damping);
 
 		if (GetNetMode() == NM_Client)
 			Server_Change_Linear_Damping(Stopping_Damping);
@@ -194,7 +194,7 @@ void ARobot_Orb::Move_Right_Started(const FInputActionValue& value)
 
 	Is_Moving_Right = value.Get<bool>();
 
-	Body_Mesh->SetLinearDamping(Moving_Damping);
+	//Body_Mesh->SetLinearDamping(Moving_Damping);
 
 	if (GetNetMode() == NM_Client)
 		Server_Change_Linear_Damping(Moving_Damping);
@@ -217,11 +217,29 @@ void ARobot_Orb::Move_Right_Completed(const FInputActionValue& value)
 
 	if (!Check_Is_Moving())
 	{
-		Body_Mesh->SetLinearDamping(Stopping_Damping);
+		//Body_Mesh->SetLinearDamping(Stopping_Damping);
 
 		if (GetNetMode() == NM_Client)
 			Server_Change_Linear_Damping(Stopping_Damping);
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Acceleration_Started(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
+
+	Movement_Speed *= 5;
+	Max_Movement_Speed *= 2;
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance + 200.0f, 600.0f, 800.0f);
+}
+//------------------------------------------------------------------------------------------------------------
+void ARobot_Orb::Acceleration_Completed(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%S"), __FUNCTION__)
+
+	Movement_Speed /= 5;
+	Max_Movement_Speed /= 2;
+	Target_Camera_Distance = FMath::Clamp(Target_Camera_Distance - 200.0f, 600.0f, 800.0f);
 }
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Jump(const FInputActionValue& value)
@@ -236,7 +254,7 @@ void ARobot_Orb::Jump(const FInputActionValue& value)
 			return;
 		}
 
-		Body_Mesh->SetLinearDamping(Moving_Damping);
+		//Body_Mesh->SetLinearDamping(Moving_Damping);
 		Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse) );
 	}
 }
@@ -371,7 +389,7 @@ void ARobot_Orb::Move_For_Axis_Triggered(bool is_forward_backward, bool is_negat
 	FVector camera_vector = is_forward_backward?Camera->GetForwardVector():Camera->GetRightVector();
 	FVector body_vector = is_forward_backward?Body_Mesh->GetForwardVector():Body_Mesh->GetRightVector();
 
-	FVector completed_vector = FVector(camera_vector.X, camera_vector.Y, body_vector.Z);
+	FVector completed_vector = FVector(camera_vector.X, camera_vector.Y, 0);
 
 	
 	
@@ -438,7 +456,7 @@ bool ARobot_Orb::Check_Jump()
 {
 	FVector start_loc = Body_Mesh->GetComponentLocation();
 	FVector world_up = FVector(0, 0, 1);  // Вектор вертикальной  относительно мира, а не персонажа
-	FVector end_loc = start_loc + world_up * -65.0f;
+	FVector end_loc = start_loc + world_up * -67.0f;
 
 	// Дебаг для отрисовки луча
 	//DrawDebugLine(GetWorld(), start_loc, end_loc, FColor::Red, true, 0.1f, 0, 1.0f);
@@ -515,7 +533,7 @@ bool ARobot_Orb::Server_Change_Linear_Damping_Validate(const float& damping)
 //------------------------------------------------------------------------------------------------------------
 void ARobot_Orb::Server_Jump_Implementation()
 {
-	Body_Mesh->SetLinearDamping(Moving_Damping);
+	//Body_Mesh->SetLinearDamping(Moving_Damping);
 	Body_Mesh->AddImpulse(FVector(0, 0, Jump_Impulse));
 }
 //------------------------------------------------------------------------------------------------------------
@@ -567,6 +585,9 @@ void ARobot_Orb::SetupPlayerInputComponent(UInputComponent* player_input_compone
 		enhanced_input_component->BindAction(Move_Right_Action, ETriggerEvent::Started, this, &ThisClass::Move_Right_Started);
 		enhanced_input_component->BindAction(Move_Right_Action, ETriggerEvent::Triggered, this, &ThisClass::Move_Right_Triggered);
 		enhanced_input_component->BindAction(Move_Right_Action, ETriggerEvent::Completed, this, &ThisClass::Move_Right_Completed);
+
+		enhanced_input_component->BindAction(Acceleration_Action, ETriggerEvent::Started, this, &ThisClass::Acceleration_Started);
+		enhanced_input_component->BindAction(Acceleration_Action, ETriggerEvent::Completed, this, &ThisClass::Acceleration_Completed);
 
 		enhanced_input_component->BindAction(Jump_Action, ETriggerEvent::Started, this, &ThisClass::Jump);
 

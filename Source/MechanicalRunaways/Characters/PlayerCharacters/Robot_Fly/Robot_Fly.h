@@ -49,6 +49,9 @@ public:
 	void Move_Up_Triggered(const FInputActionValue& value);
 	void Move_Down_Triggered(const FInputActionValue& value);
 
+	void Acceleration_Started(const FInputActionValue& value);
+	void Acceleration_Completed(const FInputActionValue& value);
+
 	void Zoom_Increase(const FInputActionValue& value);
 	void Zoom_Decrease(const FInputActionValue& value);
 	void Turn_On_Off_Fleshlight(const FInputActionValue& value);
@@ -141,6 +144,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputAction* Move_Down_Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* Acceleration_Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputAction* Zoom_Increase_Action;
