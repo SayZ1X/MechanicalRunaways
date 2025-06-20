@@ -19,7 +19,7 @@ Mechanical Runaway — це прототип кооперативної гри �
 ## Встановлення проєкту
 1. Клонуйте репозиторій:
    ```
-   git clone https://github.com/your-username/mechanical-runaway.git
+   git clone https://github.com/SayZ1X/MechanicalRunaways
    ```
 
 2. Перейдіть у директорію проєкту:
